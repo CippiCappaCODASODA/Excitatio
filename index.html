@@ -28,11 +28,6 @@
       z-index: 0;
     }
 
-    header, nav, main {
-      position: relative;
-      z-index: 2;
-    }
-
     header {
       display: flex;
       align-items: center;
@@ -40,6 +35,8 @@
       padding: 1rem 2rem;
       background: rgba(0, 0, 0, 0.6);
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+      z-index: 2;
     }
 
     .left {
@@ -90,25 +87,41 @@
       gap: 1.5rem;
       margin-top: 3rem;
       justify-content: center;
+      position: relative;
+      z-index: 2;
+      backdrop-filter: blur(6px);
     }
 
     .nav-link {
       font-size: 1.1rem;
-      color: var(--txt-muted);
+      color: #fff;
       text-decoration: none;
-      padding: 0.5rem 1rem;
+      padding: 0.6rem 1.2rem;
       border-radius: var(--r);
-      transition: 0.2s ease;
+      background: rgba(214, 0, 34, 0.15);
+      box-shadow: 0 0 8px rgba(214, 0, 34, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.25s ease;
     }
 
     .nav-link:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(214, 0, 34, 0.4);
+      box-shadow: 0 0 12px rgba(214, 0, 34, 0.6);
     }
 
     main {
       text-align: center;
       margin-top: 6rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 2rem;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      border-radius: var(--r);
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      position: relative;
+      z-index: 2;
     }
 
     h1 {
@@ -117,13 +130,13 @@
       margin-bottom: 1rem;
       text-transform: uppercase;
       letter-spacing: 3px;
+      text-shadow: 0 0 8px rgba(214, 0, 34, 0.8);
     }
 
     p {
-      max-width: 600px;
-      margin: 0 auto;
       font-size: 1.1rem;
-      color: var(--txt-muted);
+      color: var(--txt);
+      text-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
     }
   </style>
 </head>
@@ -204,10 +217,7 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const cols = Math.floor(canvas.width / 20);
-    const rows = Math.floor(canvas.height / 20);
     const chains = [];
-
     for (let i = 0; i < 200; i++) {
       chains.push({
         x: Math.random() * canvas.width,
