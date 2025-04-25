@@ -23,9 +23,15 @@
     header {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       padding: 1rem 2rem;
       background: rgba(0, 0, 0, 0.6);
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .left {
+      display: flex;
+      align-items: center;
     }
 
     .logo {
@@ -38,6 +44,32 @@
       font-weight: bold;
       letter-spacing: 2px;
       color: var(--accent);
+    }
+
+    .auth {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .auth span {
+      font-size: 0.95rem;
+      color: var(--txt-muted);
+    }
+
+    .auth button {
+      background: none;
+      border: 1px solid var(--accent);
+      color: var(--txt);
+      padding: 0.3rem 0.7rem;
+      border-radius: var(--r);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+
+    .auth button:hover {
+      background: var(--accent);
     }
 
     nav {
@@ -85,8 +117,13 @@
 <body>
 
   <header>
-    <img src="Excitatio.png" alt="Excitatio Logo" class="logo" />
-    <div class="title">BEYOND INFINITY</div>
+    <div class="left">
+      <img src="Excitatio.png" alt="Excitatio Logo" class="logo" />
+      <div class="title">BEYOND INFINITY</div>
+    </div>
+    <div class="auth" id="authArea">
+      <!-- Dynamic content will be injected here -->
+    </div>
   </header>
 
   <nav>
@@ -96,8 +133,57 @@
 
   <main>
     <h1>Welcome to Excitatio</h1>
-    <p>This is the beginning of something limitless.</p>
+    <p>This is the beginning of something limitless. Use the navigation above to explore the cipher system.</p>
   </main>
+
+  <script>
+    const authArea = document.getElementById('authArea');
+
+    function renderAuth() {
+      const user = localStorage.getItem('user');
+      authArea.innerHTML = '';
+
+      if (user) {
+        const usernameSpan = document.createElement('span');
+        usernameSpan.textContent = `@${user}`;
+
+        const logoutBtn = document.createElement('button');
+        logoutBtn.textContent = 'Logout';
+        logoutBtn.onclick = () => {
+          localStorage.removeItem('user');
+          renderAuth();
+        };
+
+        authArea.appendChild(usernameSpan);
+        authArea.appendChild(logoutBtn);
+      } else {
+        const loginBtn = document.createElement('button');
+        loginBtn.textContent = 'Login';
+        loginBtn.onclick = () => {
+          const name = prompt("Enter your username:");
+          if (name) {
+            localStorage.setItem('user', name);
+            renderAuth();
+          }
+        };
+
+        const registerBtn = document.createElement('button');
+        registerBtn.textContent = 'Register';
+        registerBtn.onclick = () => {
+          const name = prompt("Choose a username:");
+          if (name) {
+            localStorage.setItem('user', name);
+            renderAuth();
+          }
+        };
+
+        authArea.appendChild(loginBtn);
+        authArea.appendChild(registerBtn);
+      }
+    }
+
+    renderAuth();
+  </script>
 
 </body>
 </html>
