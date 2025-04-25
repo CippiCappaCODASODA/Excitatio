@@ -4,53 +4,142 @@
   <meta charset="UTF-8" />
   <title>About Excitatio</title>
   <style>
-    body {
-      margin: 0;
-      background: #090909;
-      color: #f2f2f2;
+    :root {
+      --bg: #090909;
+      --accent: #d60022;
+      --txt: #f2f2f2;
+      --txt-muted: #aaa;
+      --r: 12px;
       font-family: "Segoe UI", Tahoma, sans-serif;
-      padding: 2rem;
     }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--txt);
+      font-family: var(--font);
+      overflow: hidden;
+    }
+
+    #chainCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      margin: 5rem auto;
+      padding: 3rem;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      border-radius: var(--r);
+      box-shadow: 0 0 25px rgba(0,0,0,0.8);
+      text-align: center;
+    }
+
     h1 {
-      color: #d60022;
-      text-align: center;
-      font-size: 2rem;
-      text-shadow: 0 0 10px rgba(214,0,34,0.7);
+      color: var(--accent);
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      text-shadow: 0 0 12px rgba(214, 0, 34, 0.9);
+      text-transform: uppercase;
+      letter-spacing: 2px;
     }
+
     p {
-      max-width: 800px;
-      margin: 1rem auto;
       font-size: 1.1rem;
-      line-height: 1.6;
-      text-shadow: 0 0 5px rgba(0,0,0,0.6);
+      line-height: 1.7;
+      color: var(--txt);
+      text-shadow: 0 0 6px rgba(0,0,0,0.6);
+      margin-bottom: 1.5rem;
     }
+
     a {
-      display: block;
-      text-align: center;
-      margin-top: 3rem;
-      color: #aaa;
-      text-decoration: underline;
+      display: inline-block;
+      margin-top: 2rem;
+      color: var(--accent);
+      text-decoration: none;
       font-size: 1rem;
+      border: 1px solid var(--accent);
+      padding: 0.5rem 1rem;
+      border-radius: var(--r);
+      transition: background 0.2s;
     }
+
     a:hover {
-      color: #fff;
+      background: var(--accent);
+      color: var(--txt);
     }
   </style>
 </head>
 <body>
-  <h1>What is Excitatio?</h1>
-  <p>
-    Excitatio is not merely a cipher. It is an initiation, a calling into a higher language that binds thought, time, and secrecy.
-    Every message is ritual. Every symbol is memory.
-  </p>
-  <p>
-    Chains flow not to restrict—but to connect. Between you and me. Between logic and emotion. Between meaning and mystery.
-  </p>
-  <p>
-    If you've found this page, you've stepped into the unknown.
-    Welcome to Excitatio.
-  </p>
 
-  <a href="index.html">⬅️ Return to the Chain</a>
+  <canvas id="chainCanvas"></canvas>
+
+  <div class="content">
+    <h1>What is Excitatio?</h1>
+    <p>
+      Excitatio is not merely a cipher. It is an initiation, a calling into a higher language that binds thought, time, and secrecy.
+      Every message is ritual. Every symbol is memory.
+    </p>
+    <p>
+      Chains flow not to restrict—but to connect. Between you and me. Between logic and emotion. Between meaning and mystery.
+    </p>
+    <p>
+      If you've found this page, you've stepped into the unknown.
+      Welcome to Excitatio.
+    </p>
+    <a href="index.html">⬅️ Return to the Chain</a>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('chainCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const chains = [];
+    for (let i = 0; i < 200; i++) {
+      chains.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        speedX: (Math.random() * 0.5 + 0.2),
+        speedY: (Math.random() * 0.5 + 0.2),
+        size: Math.random() * 12 + 8
+      });
+    }
+
+    function drawChains() {
+      ctx.fillStyle = 'rgba(0,0,0,0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      chains.forEach(chain => {
+        ctx.fillStyle = 'rgba(214, 0, 34, 0.6)';
+        ctx.font = `${chain.size}px monospace`;
+        ctx.fillText('❚❚', chain.x, chain.y);
+
+        chain.x += chain.speedX;
+        chain.y += chain.speedY;
+
+        if (chain.x > canvas.width) chain.x = 0;
+        if (chain.y > canvas.height) chain.y = 0;
+      });
+
+      requestAnimationFrame(drawChains);
+    }
+
+    drawChains();
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+
 </body>
 </html>
