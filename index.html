@@ -339,12 +339,9 @@
         const loginBtn = document.createElement('button');
         loginBtn.textContent = 'Login';
         loginBtn.onclick = () => {
-          const name = prompt("Enter your username:");
-          if (name) {
-            localStorage.setItem('user', name);
-            renderAuth();
-          }
-        };
+  window.open('login.html', '_blank');
+};
+
 
         const registerBtn = document.createElement('button');
         registerBtn.textContent = 'Register';
