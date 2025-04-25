@@ -562,6 +562,10 @@ const elements = {
 const nameToNumber = {};
 for (const [number, symbol] of Object.entries(elements)) {
   nameToNumber[symbol] = parseInt(number);
+  // Add lowercase versions for special characters
+  if (symbol.length === 1 && symbol !== symbol.toLowerCase()) {
+    nameToNumber[symbol.toLowerCase()] = parseInt(number);
+  }
 }
 
 const alphabets = {
@@ -615,6 +619,35 @@ function numberToCode(number, alphabet) {
 }
 
 function codeToNumber(code, alphabet) {
+  // For emoji, we need to handle possible variation selectors
+  if (alphabet === 'emoji') {
+    const emojiDigits = alphabets.emoji;
+    let numberStr = '';
+    let i = 0;
+    while (i < code.length) {
+      const char = code[i];
+      const foundIndex = emojiDigits.findIndex(emoji => emoji === char);
+      if (foundIndex !== -1) {
+        numberStr += foundIndex;
+        i++;
+      } else {
+        // Check for variation selectors (might be combined with emoji)
+        let found = false;
+        for (let j = 0; j < emojiDigits.length; j++) {
+          if (code.startsWith(emojiDigits[j], i)) {
+            numberStr += j;
+            i += emojiDigits[j].length;
+            found = true;
+            break;
+          }
+        }
+        if (!found) i++; // Skip unknown characters
+      }
+    }
+    return parseInt(numberStr) || 0;
+  }
+  
+  // For other alphabets
   return parseInt(code.split('').map(char => alphabets[alphabet].indexOf(char)).join(''));
 }
 
@@ -671,6 +704,23 @@ function encrypt(text, alphabet) {
           }
         }
         
+        // Handle special characters (133-138)
+        const currentChar = word[j];
+        let foundElement = false;
+        
+        // Check if the character matches any of our special elements (case-insensitive)
+        for (const [num, sym] of Object.entries(elements)) {
+          if (parseInt(num) >= 133 && sym.toLowerCase() === currentChar.toLowerCase()) {
+            encryptedLetters.push(numberToCode(parseInt(num), alphabet));
+            j++;
+            foundElement = true;
+            break;
+          }
+        }
+        
+        if (foundElement) continue;
+        
+        // Regular single character handling
         const letter = word[j].toUpperCase();
         if (nameToNumber[letter]) {
           encryptedLetters.push(numberToCode(nameToNumber[letter], alphabet));
