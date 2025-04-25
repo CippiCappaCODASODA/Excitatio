@@ -2,75 +2,385 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Excitatio Login</title>
   <style>
-    body {
-      background: #090909;
-      color: #fff;
-      font-family: sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+    :root {
+      --bg: #090909;
+      --accent: #d60022;
+      --accent-hover: #ff334f;
+      --txt: #f2f2f2;
+      --txt-muted: #aaa;
+      --error: #ff4d4d;
+      --success: #4dff4d;
+      --r: 12px;
+      --shadow: 0 6px 18px rgba(0,0,0,.7);
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
+    body, html {
       margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--txt);
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #chainCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      position: relative;
+      z-index: 2;
     }
 
     .login-box {
-      background: rgba(0, 0, 0, 0.6);
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+      width: 90%;
+      max-width: 400px;
+      background: rgba(21, 21, 21, 0.85);
+      backdrop-filter: blur(12px);
+      padding: 2.5rem;
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,.08);
+      text-align: center;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      max-width: 120px;
+      margin-bottom: 1.5rem;
+      filter: drop-shadow(0 0 8px rgba(214, 0, 34, 0.6));
+    }
+
+    h2 {
+      margin: 0 0 1.5rem;
+      color: var(--accent);
+      font-size: 1.8rem;
+      text-shadow: 0 0 10px rgba(214, 0, 34, 0.8);
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--txt-muted);
+      font-size: 0.9rem;
     }
 
     input {
-      display: block;
-      margin: 1rem 0;
-      padding: 0.5rem;
       width: 100%;
-      border: none;
-      border-radius: 6px;
+      padding: 0.8rem 1rem;
+      border-radius: var(--r);
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(15, 15, 15, 0.8);
+      color: var(--txt);
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(214, 0, 34, 0.3);
     }
 
     button {
-      padding: 0.5rem 1rem;
-      background: #d60022;
-      color: white;
+      width: 100%;
+      background: var(--accent);
+      color: var(--txt);
       border: none;
-      border-radius: 6px;
+      padding: 0.9rem;
+      border-radius: var(--r);
+      font-size: 1rem;
+      font-weight: 600;
       cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 0.5rem;
     }
 
-    .error {
-      color: red;
+    button:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(214, 0, 34, 0.4);
+    }
+
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .error-message {
+      color: var(--error);
       font-size: 0.9rem;
       margin-top: 0.5rem;
+      display: none;
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+
+    .links {
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .links a {
+      color: var(--txt-muted);
+      text-decoration: none;
+      transition: color 0.3s;
+      display: inline-block;
+      margin: 0 0.5rem;
+    }
+
+    .links a:hover {
+      color: var(--accent);
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: var(--accent);
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      .login-box {
+        padding: 1.8rem;
+      }
+      
+      h2 {
+        font-size: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="login-box">
-    <h2>Login</h2>
-    <input type="text" id="username" placeholder="Username" />
-    <input type="password" id="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
-    <div id="error" class="error"></div>
+  <canvas id="chainCanvas"></canvas>
+
+  <div class="login-container">
+    <div class="login-box">
+      <img src="Excitatio.png" alt="Excitatio Logo" class="logo">
+      <h2>Secure Login</h2>
+      
+      <div class="input-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter your username" autocomplete="username" autofocus>
+      </div>
+      
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+        <div id="error" class="error-message"></div>
+      </div>
+      
+      <button id="loginBtn" onclick="login()">Enter the Cipher</button>
+      
+      <div class="links">
+        <a href="index.html">← Return Home</a>
+        <a href="#" id="forgotLink">Forgot Password?</a>
+      </div>
+    </div>
   </div>
 
   <script>
+    // Configuration
+    const MAX_ATTEMPTS = 5;
+    const LOCKOUT_TIME = 5 * 60 * 1000; // 5 minutes
+    let failedAttempts = 0;
+    let lockoutUntil = 0;
+    
+    // DOM Elements
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const errorElement = document.getElementById('error');
+    const forgotLink = document.getElementById('forgotLink');
+    
+    // Valid credentials (replace with your actual auth system)
+    const validCredentials = {
+      admin: "secret123", // Change this password
+      user: "password123" // Change this password
+    };
+    
     function login() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value;
-
-      // örnek basit kontrol — istersen şifre zorunluluğu koyarsın
-      if (username && password) {
-        localStorage.setItem("user", username);
-        window.location.href = "index.html"; // girişten sonra ana sayfaya dön
-      } else {
-        document.getElementById("error").textContent = "Please enter username and password.";
+      const now = Date.now();
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+      
+      // Check lockout status
+      if (now < lockoutUntil) {
+        const remaining = Math.ceil((lockoutUntil - now) / 60000);
+        showError(`Account locked. Try again in ${remaining} minute(s).`);
+        loginBtn.disabled = true;
+        setTimeout(() => loginBtn.disabled = false, lockoutUntil - now);
+        return;
       }
+      
+      // Validate inputs
+      if (!username || !password) {
+        showError("Both username and password are required.");
+        return;
+      }
+      
+      // Show loading state
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = 'Authenticating <span class="loading"></span>';
+      
+      // Simulate network delay
+      setTimeout(() => {
+        // Check credentials
+        if (validCredentials[username] === password) {
+          // Successful login
+          failedAttempts = 0;
+          localStorage.setItem('authUser', username);
+          showSuccess(`Welcome, ${username}. Redirecting...`);
+          
+          // Redirect after delay
+          setTimeout(() => {
+            window.location.href = "Excitatio.html";
+          }, 1500);
+          
+        } else {
+          // Failed login
+          failedAttempts++;
+          passwordInput.value = '';
+          
+          if (failedAttempts >= MAX_ATTEMPTS) {
+            lockoutUntil = now + LOCKOUT_TIME;
+            showError(`Too many attempts. Account locked for 5 minutes.`);
+            loginBtn.disabled = true;
+            setTimeout(() => {
+              failedAttempts = 0;
+              loginBtn.disabled = false;
+              errorElement.style.display = "none";
+            }, LOCKOUT_TIME);
+          } else {
+            showError(`Invalid credentials. ${MAX_ATTEMPTS - failedAttempts} attempts remaining.`);
+          }
+        }
+        
+        // Reset button state
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Enter the Cipher';
+      }, 800);
+    }
+    
+    function showError(message) {
+      errorElement.textContent = message;
+      errorElement.style.display = "block";
+      errorElement.style.animation = 'none';
+      setTimeout(() => errorElement.style.animation = 'shake 0.5s', 10);
+    }
+    
+    function showSuccess(message) {
+      errorElement.style.color = var(--success);
+      errorElement.textContent = message;
+      errorElement.style.display = "block";
+    }
+    
+    // Handle Enter key
+    passwordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') login();
+    });
+    
+    // Forgot password handler
+    forgotLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      alert("Please contact support to reset your password.");
+    });
+    
+    // Check for existing session
+    if (localStorage.getItem('authUser')) {
+      usernameInput.value = localStorage.getItem('authUser');
+      passwordInput.focus();
     }
   </script>
 
+  <script>
+    // Enhanced background animation
+    const canvas = document.getElementById('chainCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const elements = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne'];
+    const chains = [];
+    
+    for (let i = 0; i < 200; i++) {
+      chains.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        speedX: (Math.random() * 0.6 - 0.3),
+        speedY: (Math.random() * 0.6 - 0.3),
+        size: Math.random() * 12 + 8,
+        element: elements[Math.floor(Math.random() * elements.length)],
+        opacity: Math.random() * 0.5 + 0.3
+      });
+    }
+
+    function draw() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      chains.forEach(c => {
+        ctx.fillStyle = `rgba(214, 0, 34, ${c.opacity})`;
+        ctx.font = `${c.size}px monospace`;
+        ctx.fillText(c.element, c.x, c.y);
+
+        c.x += c.speedX;
+        c.y += c.speedY;
+
+        if (c.x > canvas.width + 50) c.x = -50;
+        if (c.y > canvas.height + 50) c.y = -50;
+        if (c.x < -50) c.x = canvas.width + 50;
+        if (c.y < -50) c.y = canvas.height + 50;
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+    
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
 </body>
 </html>
