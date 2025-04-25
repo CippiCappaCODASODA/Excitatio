@@ -345,13 +345,10 @@
 
         const registerBtn = document.createElement('button');
         registerBtn.textContent = 'Register';
-        registerBtn.onclick = () => {
-          const name = prompt("Choose a username:");
-          if (name) {
-            localStorage.setItem('user', name);
-            renderAuth();
-          }
-        };
+       registerBtn.onclick = () => {
+  window.location.href = "register.html";
+};
+
 
         authArea.appendChild(loginBtn);
         authArea.appendChild(registerBtn);
