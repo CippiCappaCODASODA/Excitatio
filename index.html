@@ -3,14 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Excitatio - Home</title>
+  <title>Excitatio - Elemental Encryption</title>
   <style>
     :root {
       --bg: #090909;
       --accent: #d60022;
+      --accent-hover: #ff334f;
       --txt: #f2f2f2;
       --txt-muted: #aaa;
+      --panel: rgba(21, 21, 21, 0.7);
       --r: 12px;
+      --shadow: 0 6px 18px rgba(0,0,0,.7);
       font-family: "Segoe UI", Tahoma, sans-serif;
     }
 
@@ -18,7 +21,7 @@
       margin: 0;
       background: var(--bg);
       color: var(--txt);
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
     #chainCanvas {
@@ -28,6 +31,7 @@
       z-index: 0;
     }
 
+    /* Enhanced Header */
     header {
       display: flex;
       align-items: center;
@@ -36,7 +40,8 @@
       background: rgba(0, 0, 0, 0.6);
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       position: relative;
-      z-index: 2;
+      z-index: 10;
+      backdrop-filter: blur(8px);
     }
 
     .left {
@@ -47,15 +52,164 @@
     .logo {
       height: 50px;
       margin-right: 1rem;
+      transition: transform 0.3s;
+    }
+
+    .logo:hover {
+      transform: scale(1.05);
+      filter: drop-shadow(0 0 8px rgba(214, 0, 34, 0.6));
     }
 
     .title {
       font-size: 1.6rem;
       font-weight: bold;
       letter-spacing: 2px;
+      background: linear-gradient(to right, #fff, #ff8a8a);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    /* Enhanced Navigation */
+    nav {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 3rem;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .nav-link {
+      font-size: 1.1rem;
+      color: #fff;
+      text-decoration: none;
+      padding: 0.8rem 1.8rem;
+      border-radius: var(--r);
+      background: rgba(214, 0, 34, 0.15);
+      box-shadow: 0 0 15px rgba(214, 0, 34, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: 0.5s;
+    }
+
+    .nav-link:hover {
+      background: rgba(214, 0, 34, 0.4);
+      box-shadow: 0 0 25px rgba(214, 0, 34, 0.6);
+      transform: translateY(-3px);
+    }
+
+    .nav-link:hover::before {
+      left: 100%;
+    }
+
+    /* Enhanced Main Content */
+    main {
+      text-align: center;
+      margin: 6rem auto;
+      max-width: 900px;
+      padding: 3rem;
+      background: var(--panel);
+      backdrop-filter: blur(12px);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,.05);
+      position: relative;
+      z-index: 2;
+      animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      text-shadow: 0 0 15px rgba(214, 0, 34, 0.8);
+      position: relative;
+      display: inline-block;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 3px;
+    }
+
+    p {
+      font-size: 1.2rem;
+      line-height: 1.7;
+      color: var(--txt);
+      margin-bottom: 2.5rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* New Features Section */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 3rem 0;
+    }
+
+    .feature-card {
+      background: rgba(30, 30, 30, 0.7);
+      padding: 2rem;
+      border-radius: var(--r);
+      border: 1px solid rgba(255,255,255,.05);
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      border-color: var(--accent);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
       color: var(--accent);
     }
 
+    .feature-title {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+
+    .feature-desc {
+      font-size: 0.95rem;
+      color: var(--txt-muted);
+      line-height: 1.5;
+    }
+
+    /* Enhanced Auth Section */
     .auth {
       display: flex;
       align-items: center;
@@ -71,72 +225,48 @@
       background: none;
       border: 1px solid var(--accent);
       color: var(--txt);
-      padding: 0.3rem 0.7rem;
+      padding: 0.5rem 1rem;
       border-radius: var(--r);
       cursor: pointer;
-      font-size: 0.85rem;
-      transition: background 0.2s;
+      font-size: 0.9rem;
+      transition: all 0.2s;
     }
 
     .auth button:hover {
       background: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(214, 0, 34, 0.4);
     }
 
-    nav {
-      display: flex;
-      gap: 1.5rem;
-      margin-top: 3rem;
-      justify-content: center;
-      position: relative;
-      z-index: 2;
-      backdrop-filter: blur(6px);
-    }
-
-    .nav-link {
-      font-size: 1.1rem;
-      color: #fff;
-      text-decoration: none;
-      padding: 0.6rem 1.2rem;
-      border-radius: var(--r);
-      background: rgba(214, 0, 34, 0.15);
-      box-shadow: 0 0 8px rgba(214, 0, 34, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      transition: all 0.25s ease;
-    }
-
-    .nav-link:hover {
-      background: rgba(214, 0, 34, 0.4);
-      box-shadow: 0 0 12px rgba(214, 0, 34, 0.6);
-    }
-
-    main {
-      text-align: center;
-      margin-top: 6rem;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-      padding: 2rem;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(8px);
-      border-radius: var(--r);
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
-      position: relative;
-      z-index: 2;
-    }
-
-    h1 {
-      font-size: 2.2rem;
-      color: var(--accent);
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      text-shadow: 0 0 8px rgba(214, 0, 34, 0.8);
-    }
-
-    p {
-      font-size: 1.1rem;
-      color: var(--txt);
-      text-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        padding: 1rem;
+      }
+      
+      .left {
+        margin-bottom: 1rem;
+      }
+      
+      nav {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+      
+      main {
+        padding: 2rem 1rem;
+        margin: 3rem auto;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .features {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -155,11 +285,34 @@
   <nav>
     <a href="#" class="nav-link">About Us</a>
     <a href="Excitatio.html" class="nav-link">Cipher</a>
+    <a href="#features" class="nav-link">Features</a>
   </nav>
 
   <main>
     <h1>Welcome to Excitatio</h1>
-    <p>This is the beginning of something limitless. Use the navigation above to explore the cipher system.</p>
+    <p>Discover a revolutionary encryption system that transforms your messages using elemental cipher technology. Secure your communications with our unique chemical encoding system.</p>
+    
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3 class="feature-title">Secure Encryption</h3>
+        <p class="feature-desc">Transform messages into chemical formulas using our periodic table cipher system.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3 class="feature-title">Multiple Alphabets</h3>
+        <p class="feature-desc">Encode with emoji, Arabic, Cyrillic, and more for unique cipher outputs.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🔁</div>
+        <h3 class="feature-title">Bidirectional</h3>
+        <p class="feature-desc">Easily encrypt messages and decrypt ciphertext with the same tool.</p>
+      </div>
+    </div>
+    
+    <p>Ready to experience elemental encryption? Access the cipher tool above.</p>
   </main>
 
   <script>
@@ -218,30 +371,35 @@
     canvas.height = window.innerHeight;
 
     const chains = [];
-    for (let i = 0; i < 200; i++) {
+    const elements = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne'];
+    
+    for (let i = 0; i < 150; i++) {
       chains.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        speedX: (Math.random() * 0.5 + 0.2),
-        speedY: (Math.random() * 0.5 + 0.2),
-        size: Math.random() * 12 + 8
+        speedX: (Math.random() * 0.5 + 0.2) * (Math.random() > 0.5 ? 1 : -1),
+        speedY: (Math.random() * 0.5 + 0.2) * (Math.random() > 0.5 ? 1 : -1),
+        size: Math.random() * 12 + 8,
+        element: elements[Math.floor(Math.random() * elements.length)]
       });
     }
 
     function drawChains() {
-      ctx.fillStyle = 'rgba(0,0,0,0.15)';
+      ctx.fillStyle = 'rgba(0,0,0,0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       chains.forEach(chain => {
-        ctx.fillStyle = 'rgba(214, 0, 34, 0.6)';
+        ctx.fillStyle = `rgba(214, 0, 34, ${Math.random() * 0.4 + 0.3})`;
         ctx.font = `${chain.size}px monospace`;
-        ctx.fillText('❚❚', chain.x, chain.y);
+        ctx.fillText(chain.element, chain.x, chain.y);
 
         chain.x += chain.speedX;
         chain.y += chain.speedY;
 
         if (chain.x > canvas.width) chain.x = 0;
         if (chain.y > canvas.height) chain.y = 0;
+        if (chain.x < 0) chain.x = canvas.width;
+        if (chain.y < 0) chain.y = canvas.height;
       });
 
       requestAnimationFrame(drawChains);
