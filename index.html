@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Excitatio</title>
+<style>
+:root {
+  --bg: #090909;
+  --panel: rgba(21, 21, 21, 0.7);
+  --accent: #d60022;
+  --accent-hover: #ff334f;
+  --txt: #f2f2f2;
+  --txt-muted: #888;
+  --r: 12px;
+  --shadow: 0 6px 18px rgba(0,0,0,.7);
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--txt);
+  overflow-x: hidden;
+}
+
+/* ===== Password Page ===== */
+.password-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: radial-gradient(circle at top, var(--accent) 0%, #000 70%);
+  animation: gradientPulse 8s ease infinite;
+}
+@keyframes gradientPulse {
+  0% { background-size: 100% 100%; }
+  50% { background-size: 150% 150%; }
+  100% { background-size: 100% 100%; }
+}
+
+.box {
+  background: var(--panel);
+  padding: 2rem 2.4rem;
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  text-align: center;
+  width: min(90%, 420px);
+  animation: fadeIn 0.5s ease-out;
+  backdrop-filter: blur(6px) saturate(120%);
+  border: 1px solid rgba(255,255,255,.05);
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* LOGO STYLES */
+.logo-container {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.logo {
+  max-width: 180px;
+  height: auto;
+  filter: drop-shadow(0 0 8px rgba(214, 0, 34, 0.6));
+}
+
+h2 {
+  margin: 0.5rem 0 1.2rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.password-group {
+  position: relative;
+  width: 100%;
+}
+
+input[type=password], input[type=text] {
+  width: 100%;
+  padding: .8rem 1rem .8rem 1rem;
+  margin-bottom: 1.2rem;
+  border: 1px solid #333;
+  border-radius: var(--r);
+  background: #0f0f0f;
+  color: var(--txt);
+  font-size: 1rem;
+  box-shadow: inset 0 1px 3px rgba(255,255,255,.04), inset 0 -2px 4px rgba(0,0,0,.8);
+  transition: border-color 0.3s;
+}
+input[type=password]:focus, input[type=text]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.toggle-pw {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  background: none;
+  border: none;
+  color: var(--txt-muted);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+}
+
+button {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  padding: .7rem 1.6rem;
+  border-radius: var(--r);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: var(--shadow);
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+button:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+button:active {
+  transform: translateY(0);
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 4px var(--accent); }
+  50% { box-shadow: 0 0 12px var(--accent); }
+}
+
+.error {
+  color: #ff6464;
+  display: none;
+  margin-top: .8rem;
+  font-size: .9rem;
+  animation: shake 0.5s;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+/* Loading bar */
+.progress-container {
+  width: 100%;
+  height: 3px;
+  background: transparent;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  display: none;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+/* ===== Application ===== */
+.app {
+  display: none;
+  max-width: 980px;
+  margin: 48px auto;
+  padding: 0 20px;
+  position: relative;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.logout {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: #550000;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.container {
+  background: var(--panel);
+  padding: 2rem;
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(6px) saturate(120%);
+  border: 1px solid rgba(255,255,255,.05);
+}
+
+/* App Logo Styles */
+.app-logo {
+  display: block;
+  margin: 0 auto 1.5rem;
+  max-width: 200px;
+  height: auto;
+}
+
+h1 {
+  margin: 0 0 1.6rem;
+  color: var(--accent);
+  text-align: center;
+  font-size: 1.8rem;
+  font-family: 'Arial Black', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.tabs {
+  display: flex;
+  gap: .5rem;
+  margin-bottom: .8rem;
+}
+
+.tab-btn {
+  flex: 1;
+  background: rgba(34, 34, 34, 0.7);
+  border: none;
+  padding: .8rem;
+  font-weight: 600;
+  border-radius: var(--r) var(--r) 0 0;
+  color: var(--txt-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: inset 0 1px 4px rgba(255,255,255,.05);
+  backdrop-filter: blur(4px);
+}
+.tab-btn:hover {
+  color: #ddd;
+}
+.tab-btn.active {
+  background: var(--accent);
+  color: #fff;
+  animation: pulseGlow 2s infinite;
+}
+
+.tab {
+  display: none;
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 0 0 var(--r) var(--r);
+  padding: 1.5rem;
+  background: rgba(16, 16, 16, 0.5);
+}
+.tab.active {
+  display: block;
+}
+
+textarea {
+  width: 100%;
+  min-height: 130px;
+  resize: vertical;
+  padding: 1rem 1rem 1rem 2rem;
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: var(--r);
+  background: linear-gradient(#0e0e0e 28px, #111 0) left/100% 30px;
+  color: var(--txt);
+  font-size: 1rem;
+  box-shadow: inset 0 1px 4px rgba(255,255,255,.04), inset 0 -3px 5px rgba(0,0,0,.7);
+  margin-bottom: 1rem;
+  transition: border-color 0.3s;
+  font-family: Consolas, monospace;
+  line-height: 30px;
+  background-attachment: local;
+}
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.result {
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-top: 1rem;
+  background: rgba(11, 11, 11, 0.7);
+  border: 1px solid rgba(255,255,255,.05);
+  padding: 1rem;
+  border-radius: var(--r);
+  font-family: Consolas, monospace;
+  color: #ddd;
+  min-height: 50px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.alphas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: .6rem;
+  margin-bottom: .8rem;
+}
+
+.alpha {
+  background: rgba(30, 30, 30, 0.7);
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: var(--r);
+  padding: .8rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--txt-muted);
+  font-size: .95rem;
+  box-shadow: inset 0 1px 3px rgba(255,255,255,.03);
+  backdrop-filter: blur(4px);
+}
+.alpha:hover {
+  border-color: #555;
+  color: #ddd;
+}
+.alpha.selected {
+  border-color: var(--accent);
+  background: rgba(42, 0, 9, 0.7);
+  color: #fff;
+  box-shadow: 0 0 8px #ff334555;
+}
+
+small {
+  display: block;
+  margin-top: .3rem;
+  font-size: .7rem;
+  color: var(--txt-muted);
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.copy-btn, .qr-btn {
+  position: relative;
+  background: #333;
+  border: none;
+  color: #ddd;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.copy-btn:hover, .qr-btn:hover {
+  opacity: 1;
+}
+.result-container {
+  position: relative;
+}
+
+/* QR Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  background: var(--panel);
+  padding: 2rem;
+  border-radius: var(--r);
+  text-align: center;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: auto;
+  backdrop-filter: blur(6px) saturate(120%);
+  border: 1px solid rgba(255,255,255,.05);
+}
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--txt);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .alphas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .tabs {
+    flex-direction: column;
+  }
+  .tab-btn {
+    border-radius: var(--r);
+    margin-bottom: 0.3rem;
+  }
+  .tab {
+    border-radius: var(--r);
+  }
+  .logo {
+    max-width: 140px;
+  }
+  .app-logo {
+    max-width: 160px;
+  }
+}
+</style>
+</head>
+<body>
+<!-- Audio Elements -->
+<audio id="ok" src="excitatioo.mp3" preload="auto"></audio>
+<audio id="errS" src="assets/error.mp3" preload="auto"></audio>
+<audio id="amb" src="assets/ambience.mp3" loop></audio>
+
+<!-- Loading Bar -->
+<div class="progress-container" id="progressContainer">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<!-- QR Modal -->
+<div class="modal" id="qrModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeModal()">×</button>
+    <h3>QR Code</h3>
+    <div id="qrCodeContainer"></div>
+  </div>
+</div>
+
+<!-- Password Screen -->
+<div class="password-wrap" id="pwPage">
+  <div class="box">
+    <!-- EXCITATIO Logo -->
+    <div class="logo-container">
+      <img src="Excitatio.png" alt="EXCITATIO Logo" class="logo">
+    </div>
+    <h2>Enter Password</h2>
+    <div class="password-group">
+      <input id="pwInput" type="password" placeholder="Password" autocomplete="off" onkeypress="if(event.keyCode==13)login()">
+      <button class="toggle-pw" onclick="togglePw()">👁️</button>
+    </div>
+    <button onclick="login()">Login</button>
+    <div id="err" class="error">Wrong password</div>
+  </div>
+</div>
+
+<!-- Application -->
+<div class="app" id="app">
+  <button class="logout" onclick="logout()">Logout</button>
+  <div class="container">
+    <!-- EXCITATIO Logo -->
+    <img src="Excitatio.png" alt="EXCITATIO Logo" class="app-logo">
+    
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('enc',this)">Encrypt</button>
+      <button class="tab-btn" onclick="showTab('dec',this)">Decrypt</button>
+    </div>
+
+    <!-- Encrypt Tab -->
+    <div id="enc" class="tab active">
+      <div class="alphas" id="encAlpha"></div>
+      <textarea id="encText" placeholder="Enter text to encrypt..."></textarea>
+      <button onclick="doEncrypt()">Encrypt</button>
+      <div class="result-container">
+        <div class="action-buttons">
+          <button class="copy-btn" onclick="copyToClipboard('encRes')">Copy</button>
+          <button class="qr-btn" onclick="generateQR('encRes')">QR Code</button>
+        </div>
+        <div id="encRes" class="result"></div>
+      </div>
+    </div>
+
+    <!-- Decrypt Tab -->
+    <div id="dec" class="tab">
+      <div class="alphas" id="decAlpha"></div>
+      <textarea id="decText" placeholder="Enter cipher to decrypt..."></textarea>
+      <button onclick="doDecrypt()">Decrypt</button>
+      <div class="result-container">
+        <div class="action-buttons">
+          <button class="copy-btn" onclick="copyToClipboard('decRes')">Copy</button>
+          <button class="qr-btn" onclick="generateQR('decRes')">QR Code</button>
+        </div>
+        <div id="decRes" class="result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Password ---------- */
+const PASS = "secret123"; // Change this to your desired password
+
+function togglePw() {
+  const pwInput = document.getElementById('pwInput');
+  pwInput.type = pwInput.type === 'password' ? 'text' : 'password';
+}
+
+function login() {
+  const enteredPassword = document.getElementById('pwInput').value;
+  const errorElement = document.getElementById('err');
+  
+  if (enteredPassword === PASS) {
+    document.getElementById('ok').play();
+    pwPage.style.display = "none";
+    app.style.display = "block";
+    localStorage.auth = 1;
+    document.getElementById('encText').focus();
+    
+    // Start ambience after user interaction
+    document.getElementById('amb').play();
+  } else {
+    document.getElementById('errS').play();
+    errorElement.style.display = "block";
+    pwInput.value = '';
+    pwInput.focus();
+    errorElement.style.animation = 'none';
+    void errorElement.offsetWidth;
+    errorElement.style.animation = 'shake 0.5s';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('auth');
+  document.getElementById('amb').pause();
+  location.reload();
+}
+
+// Check if already authenticated
+if (localStorage.auth) {
+  login();
+} else {
+  document.getElementById('pwInput').focus();
+  
+  // Enable ambience on first click
+  window.addEventListener('click', () => {
+    document.getElementById('amb').play();
+  }, { once: true });
+}
+
+/* ---------- Data ---------- */
+const elements = {
+  1:"H", 2:"He", 3:"Li", 4:"Be", 5:"B", 6:"C", 7:"N", 8:"O", 9:"F", 10:"Ne",
+  11:"Na", 12:"Mg", 13:"Al", 14:"Si", 15:"P", 16:"S", 17:"Cl", 18:"Ar", 19:"K", 20:"Ca",
+  21:"Sc", 22:"Ti", 23:"V", 24:"Cr", 25:"Mn", 26:"Fe", 27:"Co", 28:"Ni", 29:"Cu", 30:"Zn",
+  31:"Ga", 32:"Ge", 33:"As", 34:"Se", 35:"Br", 36:"Kr", 37:"Rb", 38:"Sr", 39:"Y", 40:"Zr",
+  41:"Nb", 42:"Mo", 43:"Tc", 44:"Ru", 45:"Rh", 46:"Pd", 47:"Ag", 48:"Cd", 49:"In", 50:"Sn",
+  51:"Sb", 52:"Te", 53:"I", 54:"Xe", 55:"Cs", 56:"Ba", 57:"La", 58:"Ce", 59:"Pr", 60:"Nd",
+  61:"Pm", 62:"Sm", 63:"Eu", 64:"Gd", 65:"Tb", 66:"Dy", 67:"Ho", 68:"Er", 69:"Tm", 70:"Yb",
+  71:"Lu", 72:"Hf", 73:"Ta", 74:"W", 75:"Re", 76:"Os", 77:"Ir", 78:"Pt", 79:"Au", 80:"Hg",
+  81:"Tl", 82:"Pb", 83:"Bi", 84:"Po", 85:"At", 86:"Rn", 87:"Fr", 88:"Ra", 89:"Ac", 90:"Th",
+  91:"Pa", 92:"U", 93:"Np", 94:"Pu", 95:"Am", 96:"Cm", 97:"Bk", 98:"Cf", 99:"Es", 100:"Fm",
+  101:"Md", 102:"No", 103:"Lr", 104:"Rf", 105:"Db", 106:"Sg", 107:"Bh", 108:"Hs", 109:"Mt", 110:"Ds",
+  111:"Rg", 112:"Cn", 113:"Nh", 114:"Fl", 115:"Mc", 116:"Lv", 117:"Ts", 118:"Og",
+  119:"A", 120:"D", 121:"E", 122:"G", 123:"J", 124:"L", 125:"M", 126:"Q", 127:"R",
+  128:"T", 129:"V", 130:"W", 131:"X", 132:"Z", 133:"Ç", 134:"Ğ", 135:"İ", 136:"Ö", 
+  137:"Ş", 138:"Ü",
+};
+
+const nameToNumber = {};
+for (const [number, symbol] of Object.entries(elements)) {
+  nameToNumber[symbol] = parseInt(number);
+  // Add lowercase versions for special characters
+  if (symbol.length === 1 && symbol !== symbol.toLowerCase()) {
+    nameToNumber[symbol.toLowerCase()] = parseInt(number);
+  }
+}
+
+const alphabets = {
+  "latin": ['q','w','e','r','t','y','u','i','o','p'],
+  "kiril": ['я','в','е','р','т','н','г','ш','щ','з'],
+  "arap": ['ا','ب','ت','ث','ج','ح','خ','د','ذ','ر'],
+  "emoji": ['😺','😎','😂','😬','😏','😢','🥶','🤯','😇','🤖'],
+  "çince": ['一','二','三','四','五','六','七','八','九','〇'],
+  "yunanca": ['α','β','γ','δ','ε','ζ','η','θ','ι','κ']
+};
+
+let currentEncryptAlphabet = 'latin';
+let currentDecryptAlphabet = 'latin';
+
+/* ---------- UI Alphabet Selectors ---------- */
+function renderAlphabetSelectors() {
+  const encWrap = document.getElementById('encAlpha');
+  const decWrap = document.getElementById('decAlpha');
+  
+  encWrap.innerHTML = '';
+  decWrap.innerHTML = '';
+  
+  for (const alphabet in alphabets) {
+    // Encrypt alphabet selector
+    const encDiv = document.createElement('div');
+    encDiv.className = 'alpha' + (currentEncryptAlphabet === alphabet ? ' selected' : '');
+    encDiv.onclick = () => {
+      currentEncryptAlphabet = alphabet;
+      renderAlphabetSelectors();
+    };
+    encDiv.innerHTML = `${alphabet}<small>${alphabets[alphabet].join(',')}</small>`;
+    encWrap.appendChild(encDiv);
+    
+    // Decrypt alphabet selector
+    const decDiv = document.createElement('div');
+    decDiv.className = 'alpha' + (currentDecryptAlphabet === alphabet ? ' selected' : '');
+    decDiv.onclick = () => {
+      currentDecryptAlphabet = alphabet;
+      renderAlphabetSelectors();
+    };
+    decDiv.innerHTML = `${alphabet}<small>${alphabets[alphabet].join(',')}</small>`;
+    decWrap.appendChild(decDiv);
+  }
+}
+
+renderAlphabetSelectors();
+
+/* ---------- Helpers ---------- */
+function numberToCode(number, alphabet) {
+  return String(number).split('').map(digit => alphabets[alphabet][parseInt(digit)]).join('');
+}
+
+function codeToNumber(code, alphabet) {
+  // For emoji, we need to handle possible variation selectors
+  if (alphabet === 'emoji') {
+    const emojiDigits = alphabets.emoji;
+    let numberStr = '';
+    let i = 0;
+    while (i < code.length) {
+      const char = code[i];
+      const foundIndex = emojiDigits.findIndex(emoji => emoji === char);
+      if (foundIndex !== -1) {
+        numberStr += foundIndex;
+        i++;
+      } else {
+        // Check for variation selectors (might be combined with emoji)
+        let found = false;
+        for (let j = 0; j < emojiDigits.length; j++) {
+          if (code.startsWith(emojiDigits[j], i)) {
+            numberStr += j;
+            i += emojiDigits[j].length;
+            found = true;
+            break;
+          }
+        }
+        if (!found) i++; // Skip unknown characters
+      }
+    }
+    return parseInt(numberStr) || 0;
+  }
+  
+  // For other alphabets
+  return parseInt(code.split('').map(char => alphabets[alphabet].indexOf(char)).join(''));
+}
+
+/* ---------- Encryption ---------- */
+function encrypt(text, alphabet) {
+  const progressBar = document.getElementById('progressBar');
+  const progressContainer = document.getElementById('progressContainer');
+  progressContainer.style.display = 'block';
+  
+  // Simulate progress for long text
+  const totalSteps = text.length * 2;
+  let currentStep = 0;
+  
+  const progressInterval = setInterval(() => {
+    currentStep += 5;
+    const progress = Math.min(currentStep / totalSteps * 100, 90);
+    progressBar.style.width = `${progress}%`;
+  }, 50);
+
+  const sentences = text.split(/([.!?]+)/).filter(s => s.trim().length > 0);
+  let result = [];
+  
+  for (let i = 0; i < sentences.length; i++) {
+    let sentence = sentences[i];
+    const isTerminated = /[.!?]$/.test(sentence);
+    
+    if (isTerminated) {
+      sentence = sentence.slice(0, -1);
+    }
+    
+    const words = sentence.split(/\s+/).filter(w => w.length > 0);
+    const encryptedWords = [];
+    
+    for (const word of words) {
+      const encryptedLetters = [];
+      let j = 0;
+      
+      while (j < word.length) {
+        if (j + 1 < word.length) {
+          const pair = word[j].toUpperCase() + word[j+1].toLowerCase();
+          const reversed = pair.split('').reverse().join('').toLowerCase();
+          const capitalizedReversed = reversed.charAt(0).toUpperCase() + reversed.slice(1);
+          
+          if (nameToNumber[pair] && nameToNumber[pair] <= 118) {
+            encryptedLetters.push(numberToCode(nameToNumber[pair], alphabet));
+            j += 2;
+            continue;
+          }
+          
+          if (nameToNumber[capitalizedReversed] && nameToNumber[capitalizedReversed] <= 118) {
+            encryptedLetters.push('┴' + numberToCode(nameToNumber[capitalizedReversed], alphabet));
+            j += 2;
+            continue;
+          }
+        }
+        
+        // Handle special characters (133-138)
+        const currentChar = word[j];
+        let foundElement = false;
+        
+        // Check if the character matches any of our special elements (case-insensitive)
+        for (const [num, sym] of Object.entries(elements)) {
+          if (parseInt(num) >= 133 && sym.toLowerCase() === currentChar.toLowerCase()) {
+            encryptedLetters.push(numberToCode(parseInt(num), alphabet));
+            j++;
+            foundElement = true;
+            break;
+          }
+        }
+        
+        if (foundElement) continue;
+        
+        // Regular single character handling
+        const letter = word[j].toUpperCase();
+        if (nameToNumber[letter]) {
+          encryptedLetters.push(numberToCode(nameToNumber[letter], alphabet));
+        } else {
+          let fallback = 119;
+          for (const [num, sym] of Object.entries(elements)) {
+            if (sym === letter && parseInt(num) >= 119) {
+              fallback = parseInt(num);
+              break;
+            }
+          }
+          encryptedLetters.push(numberToCode(fallback, alphabet));
+        }
+        j++;
+      }
+      
+      encryptedWords.push('(' + encryptedLetters.join('^') + ')');
+    }
+    
+    let encryptedSentence = encryptedWords.join('-');
+    if (isTerminated) {
+      encryptedSentence = '[' + encryptedSentence + ']';
+    }
+    
+    result.push(encryptedSentence);
+  }
+  
+  clearInterval(progressInterval);
+  progressBar.style.width = '100%';
+  setTimeout(() => {
+    progressContainer.style.display = 'none';
+    progressBar.style.width = '0%';
+  }, 500);
+  
+  return result.join(' - ');
+}
+
+/* ---------- Decryption ---------- */
+function decrypt(code, alphabet) {
+  const matches = [...code.matchAll(/\[([^\]]+)\]|\(([^)]+)\)/g)];
+  const result = [];
+  
+  for (const match of matches) {
+    const block = match[1] || match[2];
+    if (!block) continue;
+    
+    const words = block.split('-');
+    const decryptedWords = [];
+    
+    for (const word of words) {
+      const parts = word.replace(/[()]/g, '').split('^');
+      const decryptedLetters = [];
+      
+      for (const part of parts) {
+        const isReversed = part.startsWith('┴');
+        const raw = isReversed ? part.substring(1) : part;
+        const number = codeToNumber(raw, alphabet);
+        const element = elements[number] || '?';
+        
+        if (isReversed) {
+          decryptedLetters.push(element.split('').reverse().join('').toLowerCase());
+        } else {
+          decryptedLetters.push(element.toLowerCase());
+        }
+      }
+      
+      decryptedWords.push(decryptedLetters.join(''));
+    }
+    
+    result.push(decryptedWords.join(' '));
+  }
+  
+  return result.join(' ');
+}
+
+/* ---------- Button Functions ---------- */
+function doEncrypt() {
+  const input = document.getElementById('encText').value.trim();
+  if (!input) {
+    alert('Please enter text to encrypt');
+    return;
+  }
+  document.getElementById('encRes').textContent = encrypt(input, currentEncryptAlphabet) || '';
+}
+
+function doDecrypt() {
+  const input = document.getElementById('decText').value.trim();
+  if (!input) {
+    alert('Please enter cipher to decrypt');
+    return;
+  }
+  document.getElementById('decRes').textContent = decrypt(input, currentDecryptAlphabet) || '';
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  
+  if (id === 'enc') {
+    document.getElementById('encText').focus();
+  } else {
+    document.getElementById('decText').focus();
+  }
+}
+
+/* ---------- Modal Functions ---------- */
+function generateQR(resultId) {
+  const text = document.getElementById(resultId).textContent;
+  if (!text) {
+    alert('No content to generate QR code');
+    return;
+  }
+  
+  const qrCodeContainer = document.getElementById('qrCodeContainer');
+  const encodedText = encodeURIComponent(text);
+  qrCodeContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodedText}" alt="QR Code">`;
+  
+  document.getElementById('qrModal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('qrModal').style.display = 'none';
+}
+
+/* ---------- Copy to Clipboard ---------- */
+function copyToClipboard(id) {
+  const text = document.getElementById(id).textContent;
+  if (!text) return;
+  
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+    }, 2000);
+  }).catch(err => {
+    console.error('Failed to copy: ', err);
+  });
+}
+
+/* ---------- Keyboard Shortcuts ---------- */
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'e') {
+    e.preventDefault();
+    doEncrypt();
+  }
+  if (e.ctrlKey && e.key === 'd') {
+    e.preventDefault();
+    doDecrypt();
+  }
+});
+
+document.getElementById('pwInput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    login();
+  }
+});
+
+// Close modal when clicking outside
+window.addEventListener('click', (e) => {
+  if (e.target === document.getElementById('qrModal')) {
+    closeModal();
+  }
+});
+</script>
+</body>
+</html>
