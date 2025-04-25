@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Excitatio Login</title>
+  <style>
+    :root {
+      --bg: #090909;
+      --accent: #d60022;
+      --txt: #f2f2f2;
+      --r: 12px;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--txt);
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #chainCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+
+    .login-box {
+      position: relative;
+      z-index: 2;
+      width: 320px;
+      margin: 10% auto;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      padding: 2rem;
+      border-radius: var(--r);
+      box-shadow: 0 0 20px rgba(214, 0, 34, 0.5);
+      text-align: center;
+    }
+
+    .login-box h2 {
+      margin-bottom: 1.5rem;
+      color: var(--accent);
+      text-shadow: 0 0 10px rgba(214, 0, 34, 0.8);
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border-radius: var(--r);
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--txt);
+      font-size: 1rem;
+    }
+
+    .login-box button {
+      width: 100%;
+      background: var(--accent);
+      color: var(--txt);
+      border: none;
+      padding: 0.6rem;
+      border-radius: var(--r);
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .login-box button:hover {
+      opacity: 0.9;
+    }
+
+    .login-box a {
+      display: block;
+      margin-top: 1.5rem;
+      color: var(--txt);
+      text-decoration: underline;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="chainCanvas"></canvas>
+
+  <div class="login-box">
+    <h2>Login to Excitatio</h2>
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Enter the Cipher</button>
+    <a href="index.html">⬅️ Return to Home</a>
+  </div>
+
+  <script>
+    function login() {
+      const user = document.getElementById('username').value.trim();
+      const pass = document.getElementById('password').value.trim();
+      if (!user || !pass) {
+        alert("Both fields required.");
+        return;
+      }
+      localStorage.setItem('user', user);
+      alert(`Welcome, @${user}`);
+      window.close();
+    }
+  </script>
+
+  <script>
+    const canvas = document.getElementById('chainCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const chains = [];
+    for (let i = 0; i < 180; i++) {
+      chains.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        speedX: Math.random() * 0.6,
+        speedY: Math.random() * 0.6,
+        size: Math.random() * 10 + 8
+      });
+    }
+
+    function draw() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      chains.forEach(c => {
+        ctx.fillStyle = 'rgba(214, 0, 34, 0.6)';
+        ctx.font = `${c.size}px monospace`;
+        ctx.fillText('❚❚', c.x, c.y);
+
+        c.x += c.speedX;
+        c.y += c.speedY;
+
+        if (c.x > canvas.width) c.x = 0;
+        if (c.y > canvas.height) c.y = 0;
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
