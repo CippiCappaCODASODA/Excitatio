@@ -1,50 +1,53 @@
+// Ensure this runs after DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. First verify localStorage works
-    try {
-        localStorage.setItem('storage_test', '1');
-        if(localStorage.getItem('storage_test') !== '1') {
-            showError("Browser storage access blocked. Try:", [
-                "- Using Chrome/Firefox",
-                "- Disabling privacy extensions",
-                "- Checking site permissions"
-            ].join('\n'));
-            return;
-        }
-        localStorage.removeItem('storage_test');
-    } catch (e) {
-        showError("Cannot access browser storage: " + e.message);
-        return;
+    // 1. First verify we're on the correct domain
+    if (!window.location.href.includes('github.io')) {
+        console.warn('Testing outside GitHub Pages - behavior may differ');
     }
 
-    // 2. Get elements with null checks
-    const registerForm = document.forms.registerForm || 
-                       document.getElementById('registerForm');
+    // 2. Storage availability check (GitHub Pages specific)
+    function isStorageAvailable() {
+        try {
+            const testKey = '__storage_test__';
+            localStorage.setItem(testKey, testKey);
+            localStorage.removeItem(testKey);
+            return true;
+        } catch (e) {
+            console.error('Storage blocked:', e);
+            document.getElementById('error').textContent = 
+                'Please disable privacy extensions and allow storage for this site';
+            return false;
+        }
+    }
+
+    if (!isStorageAvailable()) return;
+
+    // 3. Get form elements with null checks
+    const registerForm = document.querySelector('form[id="registerForm"]');
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const errorElement = document.getElementById('error');
 
-    if (!registerForm || !usernameInput || !passwordInput || !errorElement) {
-        console.error("Missing required elements!");
+    if (!registerForm || !usernameInput || !passwordInput) {
+        console.error('Form elements missing! Check your HTML IDs');
         return;
     }
 
-    // 3. Enhanced form handler
-    registerForm.addEventListener('submit', function(e) {
+    // 4. Form submission handler
+    registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
-        
-        // Validation
-        if (!username) {
-            showError("Username required");
-            usernameInput.focus();
+
+        // Input validation
+        if (!username || username.length < 3) {
+            showError('Username must be at least 3 characters');
             return;
         }
         
         if (!password || password.length < 6) {
-            showError("Password must be 6+ characters");
-            passwordInput.focus();
+            showError('Password must be at least 6 characters');
             return;
         }
 
@@ -52,58 +55,62 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const users = JSON.parse(localStorage.getItem('users') || {};
             
-            if (users[username]) {
-                showError(`Username "${username}" already exists`);
+            // Check for existing user
+            if (users.hasOwnProperty(username)) {
+                showError('Username already exists');
                 return;
             }
             
+            // Store new user (in production, NEVER store plain passwords!)
             users[username] = password;
             localStorage.setItem('users', JSON.stringify(users));
             
-            console.debug("New user added:", {username, password});
-            showSuccess("Account created! Redirecting...");
+            // Debug output
+            console.log('Registration successful. Current users:', users);
             
-            setTimeout(() => {
-                window.location.href = "login.html";
-            }, 1500);
+            // Visual feedback
+            showSuccess('Account created successfully! Redirecting...');
             
-        } catch (e) {
-            console.error("Registration failed:", e);
-            showError("System error. Check console and try again.");
+            // GitHub Pages sometimes needs extra time for storage
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Case-sensitive redirect for GitHub Pages
+            const loginPage = window.location.href.includes('excitatio') 
+                ? 'login.html' 
+                : 'Login.html';
+            window.location.href = loginPage;
+            
+        } catch (error) {
+            console.error('Registration failed:', error);
+            showError('Registration error. Please check console for details.');
         }
     });
 
+    // Helper functions
     function showError(message) {
         if (!errorElement) return;
         errorElement.textContent = message;
-        errorElement.style.cssText = `
-            color: #ff4d4d;
-            display: block;
-            padding: 10px;
-            border: 1px solid #ff4d4d;
-            background: rgba(255,0,0,0.1);
-        `;
+        errorElement.className = 'error-message active';
     }
     
     function showSuccess(message) {
         if (!errorElement) return;
         errorElement.textContent = message;
-        errorElement.style.cssText = `
-            color: #4dff4d;
-            display: block;
-            padding: 10px;
-            border: 1px solid #4dff4d;
-            background: rgba(0,255,0,0.1);
-        `;
+        errorElement.className = 'error-message success';
     }
-});
 
-// Debug helpers
-window.debugAuth = {
-    clear: () => localStorage.removeItem('users'),
-    list: () => JSON.parse(localStorage.getItem('users') || '{}'),
-    test: (u,p) => { 
-        const users = JSON.parse(localStorage.getItem('users') || '{}');
-        return users[u] === p;
-    }
-};
+    // Debug utilities
+    window.debugAuth = {
+        clearAll: () => localStorage.clear(),
+        listUsers: () => JSON.parse(localStorage.getItem('users') || {}),
+        testLogin: (u, p) => {
+            const users = JSON.parse(localStorage.getItem('users') || {});
+            return users[u] === p;
+        },
+        simulateRegister: (u, p) => {
+            const users = JSON.parse(localStorage.getItem('users') || {});
+            users[u] = p;
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+    };
+});
