@@ -1,47 +1,53 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Get DOM elements
+    // DOM Elements
     const registerForm = document.getElementById('registerForm');
     const errorElement = document.getElementById('registerError');
-    const submitBtn = registerForm ? registerForm.querySelector('button[type="submit"]') : null;
+    const submitBtn = document.querySelector('button[type="submit"]');
+    const passwordInput = document.getElementById('password');
+    const strengthMeter = document.getElementById('strengthMeter');
 
-    // 2. Check if elements exist
-    if (!registerForm || !errorElement || !submitBtn) {
-        console.error('Missing required elements!');
-        return;
-    }
+    // Security Config
+    const MAX_ATTEMPTS = 5;
+    let attempts = 0;
+    const PASSWORD_MIN_ENTROPY = 60; // bits
 
-    // 3. Form submission handler
+    // Password Strength Real-time Check
+    passwordInput.addEventListener('input', function() {
+        const entropy = calculatePasswordEntropy(passwordInput.value);
+        updateStrengthMeter(entropy);
+    });
+
+    // Form Submission
     registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        // 4. Get input values
+        // Rate Limiting
+        if (attempts >= MAX_ATTEMPTS) {
+            showError('Too many attempts. Wait 15 minutes.');
+            return;
+        }
+        attempts++;
+
+        // CSRF Protection
+        if (document.getElementById('csrfToken').value !== 
+            localStorage.getItem('lastCSRFToken')) {
+            showError('Security token expired. Refresh page.');
+            return;
+        }
+
+        // Get Values
         const username = document.getElementById('username').value.trim();
         const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
+        const password = passwordInput.value;
         const confirmPassword = document.getElementById('confirmPassword').value;
 
-        // 5. Reset error state
-        errorElement.style.display = 'none';
+        // Validation
+        if (!validateInputs(username, email, password, confirmPassword)) return;
+
+        // Registration
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating account...';
+        submitBtn.innerHTML = 'Creating Account <span class="loading"></span>';
 
-        // 6. Validate inputs
-        if (!username || !email || !password || !confirmPassword) {
-            showError('All fields are required!');
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            showError('Passwords do not match!');
-            return;
-        }
-
-        if (password.length < 8) {
-            showError('Password must be at least 8 characters');
-            return;
-        }
-
-        // 7. Registration logic
         try {
             await registerUser(username, email, password);
             window.location.href = 'login.html?registered=true';
@@ -53,31 +59,53 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 8. Helper functions
-    function showError(message) {
-        errorElement.textContent = message;
-        errorElement.style.display = 'block';
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Create Account';
+    // Helper Functions
+    function validateInputs(username, email, password, confirmPassword) {
+        let isValid = true;
+
+        // Username
+        if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+            showError('Username: 3-20 chars (letters, numbers, _)');
+            isValid = false;
+        }
+
+        // Email
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+            showError('Invalid email format');
+            isValid = false;
+        }
+
+        // Password
+        const entropy = calculatePasswordEntropy(password);
+        if (entropy < PASSWORD_MIN_ENTROPY) {
+            showError('Password too weak (add more variety)');
+            isValid = false;
+        }
+
+        // Confirm Password
+        if (password !== confirmPassword) {
+            showError('Passwords must match exactly');
+            document.getElementById('confirmPassword').value = '';
+            isValid = false;
+        }
+
+        return isValid;
     }
 
     async function registerUser(username, email, password) {
-        // 9. Check if user exists (in localStorage)
+        // Check existing users
         const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const userExists = users.some(user => user.username === username || user.email === email);
-        
-        if (userExists) {
-            throw new Error('Username or email already exists');
+        if (users.some(u => u.username === username || u.email === email)) {
+            throw new Error('Username/email already exists');
         }
 
-        // 10. Hash password (basic example - use proper hashing in production)
-        const hashedPassword = await hashPassword(password);
-
-        // 11. Store new user
+        // Secure password storage
+        const { salt, hash } = await hashPassword(password);
+        
         users.push({
             username,
             email,
-            password: hashedPassword,
+            password: `${salt}:${hash}`, // Store salt separately
             createdAt: new Date().toISOString()
         });
 
@@ -85,11 +113,69 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function hashPassword(password) {
-        // Basic hashing - replace with proper implementation
+        // Generate salt
+        const salt = window.crypto.getRandomValues(new Uint8Array(16));
+        
+        // Hash with salt using PBKDF2 (better than SHA-256 for passwords)
         const encoder = new TextEncoder();
-        const data = encoder.encode(password);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        const keyMaterial = await crypto.subtle.importKey(
+            'raw',
+            encoder.encode(password),
+            { name: 'PBKDF2' },
+            false,
+            ['deriveBits']
+        );
+        
+        const hashBuffer = await crypto.subtle.deriveBits(
+            {
+                name: 'PBKDF2',
+                salt: encoder.encode(Array.from(salt).join('')),
+                iterations: 100000,
+                hash: 'SHA-256'
+            },
+            keyMaterial,
+            256
+        );
+
+        return {
+            salt: Array.from(salt).join(','),
+            hash: Array.from(new Uint8Array(hashBuffer))
+                .map(b => b.toString(16).padStart(2, '0')).join('')
+        };
+    }
+
+    function calculatePasswordEntropy(password) {
+        // Character pool size estimation
+        let poolSize = 0;
+        if (/[a-z]/.test(password)) poolSize += 26;
+        if (/[A-Z]/.test(password)) poolSize += 26;
+        if (/[0-9]/.test(password)) poolSize += 10;
+        if (/[^A-Za-z0-9]/.test(password)) poolSize += 32;
+
+        // Entropy calculation
+        return Math.log2(Math.pow(poolSize, password.length));
+    }
+
+    function updateStrengthMeter(entropy) {
+        let width = 0;
+        let color = '#ff4d4d';
+
+        if (entropy >= 80) {
+            width = 100; color = '#4dff4d'; // Strong
+        } else if (entropy >= 60) {
+            width = 75; color = '#ffcc00'; // Medium
+        } else if (entropy >= 40) {
+            width = 50; color = '#ff9933'; // Weak
+        } else {
+            width = 25; // Very weak
+        }
+
+        strengthMeter.style.width = `${width}%`;
+        strengthMeter.style.background = color;
+    }
+
+    function showError(message) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
     }
 });
