@@ -1,116 +1,73 @@
-// Ensure this runs after DOM is fully loaded
+// register.js - Fixed Version for GitHub Pages
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. First verify we're on the correct domain
-    if (!window.location.href.includes('github.io')) {
-        console.warn('Testing outside GitHub Pages - behavior may differ');
-    }
-
-    // 2. Storage availability check (GitHub Pages specific)
-    function isStorageAvailable() {
-        try {
-            const testKey = '__storage_test__';
-            localStorage.setItem(testKey, testKey);
-            localStorage.removeItem(testKey);
-            return true;
-        } catch (e) {
-            console.error('Storage blocked:', e);
-            document.getElementById('error').textContent = 
-                'Please disable privacy extensions and allow storage for this site';
-            return false;
-        }
-    }
-
-    if (!isStorageAvailable()) return;
-
-    // 3. Get form elements with null checks
-    const registerForm = document.querySelector('form[id="registerForm"]');
+    const registerForm = document.getElementById('registerForm');
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const errorElement = document.getElementById('error');
 
-    if (!registerForm || !usernameInput || !passwordInput) {
-        console.error('Form elements missing! Check your HTML IDs');
-        return;
-    }
-
-    // 4. Form submission handler
-    registerForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
+    // Debug: Check existing localStorage
+    console.log("Current localStorage:", localStorage);
+    
+    registerForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent form submission reload
         
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
-
+        
         // Input validation
-        if (!username || username.length < 3) {
-            showError('Username must be at least 3 characters');
+        if (!username || !password) {
+            showError("Username and password are required!");
             return;
         }
         
-        if (!password || password.length < 6) {
-            showError('Password must be at least 6 characters');
+        if (password.length < 6) {
+            showError("Password must be at least 6 characters");
             return;
         }
 
-        // Storage operations
         try {
-            const users = JSON.parse(localStorage.getItem('users') || {};
+            // Get existing users or create new object
+            const users = JSON.parse(localStorage.getItem('users')) || {};
             
-            // Check for existing user
-            if (users.hasOwnProperty(username)) {
-                showError('Username already exists');
+            // Check if username exists
+            if (users[username]) {
+                showError("Username already exists!");
                 return;
             }
             
-            // Store new user (in production, NEVER store plain passwords!)
+            // Add new user
             users[username] = password;
             localStorage.setItem('users', JSON.stringify(users));
             
             // Debug output
-            console.log('Registration successful. Current users:', users);
+            console.log("Registration successful! Updated users:", users);
             
-            // Visual feedback
-            showSuccess('Account created successfully! Redirecting...');
-            
-            // GitHub Pages sometimes needs extra time for storage
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            // Case-sensitive redirect for GitHub Pages
-            const loginPage = window.location.href.includes('excitatio') 
-                ? 'login.html' 
-                : 'Login.html';
-            window.location.href = loginPage;
+            // Show success and redirect
+            showSuccess("Registration successful! Redirecting to login...");
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1500);
             
         } catch (error) {
-            console.error('Registration failed:', error);
-            showError('Registration error. Please check console for details.');
+            console.error("LocalStorage error:", error);
+            showError("Registration failed. Please check console for details.");
         }
     });
 
-    // Helper functions
     function showError(message) {
-        if (!errorElement) return;
         errorElement.textContent = message;
-        errorElement.className = 'error-message active';
+        errorElement.style.color = "#ff4d4d";
+        errorElement.style.display = "block";
     }
     
     function showSuccess(message) {
-        if (!errorElement) return;
         errorElement.textContent = message;
-        errorElement.className = 'error-message success';
+        errorElement.style.color = "#4dff4d";
+        errorElement.style.display = "block";
     }
 
-    // Debug utilities
-    window.debugAuth = {
-        clearAll: () => localStorage.clear(),
-        listUsers: () => JSON.parse(localStorage.getItem('users') || {}),
-        testLogin: (u, p) => {
-            const users = JSON.parse(localStorage.getItem('users') || {});
-            return users[u] === p;
-        },
-        simulateRegister: (u, p) => {
-            const users = JSON.parse(localStorage.getItem('users') || {});
-            users[u] = p;
-            localStorage.setItem('users', JSON.stringify(users));
-        }
+    // Debug function to check storage
+    window.debugStorage = function() {
+        console.log("Current users:", JSON.parse(localStorage.getItem('users')));
     };
 });
