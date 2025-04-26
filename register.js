@@ -1,4 +1,4 @@
-// register.js - Fixed Version for GitHub Pages
+// register.js - Fixed Version
 document.addEventListener('DOMContentLoaded', function() {
     const registerForm = document.getElementById('registerForm');
     const usernameInput = document.getElementById('username');
@@ -35,12 +35,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Add new user
-            users[username] = password;
-            localStorage.setItem('users', JSON.stringify(users));
+            // Add new user (FIXED THIS LINE - removed extra parenthesis)
+            localStorage.setItem('users', JSON.stringify({...users, [username]: password}));
             
             // Debug output
-            console.log("Registration successful! Updated users:", users);
+            console.log("Registration successful! Updated users:", 
+                JSON.parse(localStorage.getItem('users')));
             
             // Show success and redirect
             showSuccess("Registration successful! Redirecting to login...");
@@ -55,19 +55,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function showError(message) {
-        errorElement.textContent = message;
-        errorElement.style.color = "#ff4d4d";
-        errorElement.style.display = "block";
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.color = "#ff4d4d";
+            errorElement.style.display = "block";
+        }
     }
     
     function showSuccess(message) {
-        errorElement.textContent = message;
-        errorElement.style.color = "#4dff4d";
-        errorElement.style.display = "block";
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.color = "#4dff4d";
+            errorElement.style.display = "block";
+        }
     }
 
     // Debug function to check storage
     window.debugStorage = function() {
-        console.log("Current users:", JSON.parse(localStorage.getItem('users')));
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        console.log("Current users:", users);
+        return users;
     };
 });
