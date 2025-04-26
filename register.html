@@ -1,444 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Excitatio Registration</title>
-  <style>
-    :root {
-      --bg: #090909;
-      --accent: #d60022;
-      --accent-hover: #ff334f;
-      --txt: #f2f2f2;
-      --txt-muted: #aaa;
-      --error: #ff4d4d;
-      --success: #4dff4d;
-      --r: 12px;
-      --shadow: 0 6px 18px rgba(0,0,0,.7);
-      font-family: "Segoe UI", Tahoma, sans-serif;
-    }
-
-    body, html {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: var(--txt);
-      height: 100%;
-      overflow: hidden;
-    }
-
-    #chainCanvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 0;
-    }
-
-    .register-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      position: relative;
-      z-index: 2;
-    }
-
-    .register-box {
-      width: 90%;
-      max-width: 450px;
-      background: rgba(21, 21, 21, 0.85);
-      backdrop-filter: blur(12px);
-      padding: 2.5rem;
-      border-radius: var(--r);
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255,255,255,.08);
-      text-align: center;
-      animation: fadeIn 0.6s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .logo {
-      max-width: 120px;
-      margin-bottom: 1.5rem;
-      filter: drop-shadow(0 0 8px rgba(214, 0, 34, 0.6));
-    }
-
-    h2 {
-      margin: 0 0 1.5rem;
-      color: var(--accent);
-      font-size: 1.8rem;
-      text-shadow: 0 0 10px rgba(214, 0, 34, 0.8);
-    }
-
-    .input-group {
-      margin-bottom: 1.2rem;
-      text-align: left;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: var(--txt-muted);
-      font-size: 0.9rem;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      border-radius: var(--r);
-      border: 1px solid rgba(255,255,255,.1);
-      background: rgba(15, 15, 15, 0.8);
-      color: var(--txt);
-      font-size: 1rem;
-      transition: border-color 0.3s;
-    }
-
-    input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(214, 0, 34, 0.3);
-    }
-
-    .password-strength {
-      height: 4px;
-      background: #333;
-      border-radius: 2px;
-      margin-top: 0.5rem;
-      overflow: hidden;
-    }
-
-    .strength-meter {
-      height: 100%;
-      width: 0%;
-      transition: width 0.3s, background 0.3s;
-    }
-
-    .error-message {
-      color: var(--error);
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-      display: none;
-      animation: shake 0.5s;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-5px); }
-      40%, 80% { transform: translateX(5px); }
-    }
-
-    button {
-      width: 100%;
-      background: var(--accent);
-      color: var(--txt);
-      border: none;
-      padding: 0.9rem;
-      border-radius: var(--r);
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 1rem;
-    }
-
-    button:hover {
-      background: var(--accent-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(214, 0, 34, 0.4);
-    }
-
-    button:disabled {
-      background: #555;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,.3);
-      border-radius: 50%;
-      border-top-color: var(--accent);
-      animation: spin 1s ease-in-out infinite;
-      margin-left: 10px;
-      vertical-align: middle;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .links {
-      margin-top: 1.5rem;
-      font-size: 0.9rem;
-    }
-
-    .links a {
-      color: var(--txt-muted);
-      text-decoration: none;
-      transition: color 0.3s;
-      display: inline-block;
-      margin: 0 0.5rem;
-    }
-
-    .links a:hover {
-      color: var(--accent);
-    }
-
-    .terms {
-      font-size: 0.8rem;
-      color: var(--txt-muted);
-      margin-top: 1.5rem;
-    }
-
-    @media (max-width: 480px) {
-      .register-box {
-        padding: 1.8rem;
-      }
-      
-      h2 {
-        font-size: 1.5rem;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <canvas id="chainCanvas"></canvas>
-
-  <div class="register-container">
-    <div class="register-box">
-      <img src="Excitatio.png" alt="Excitatio Logo" class="logo">
-      <h2>Create Account</h2>
-      
-      <div class="input-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Choose your username" autocomplete="username" autofocus>
-        <div id="usernameError" class="error-message"></div>
-      </div>
-      
-      <div class="input-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
-        <div id="emailError" class="error-message"></div>
-      </div>
-      
-      <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Create a password" autocomplete="new-password">
-        <div class="password-strength">
-          <div id="strengthMeter" class="strength-meter"></div>
-        </div>
-        <div id="passwordError" class="error-message"></div>
-      </div>
-      
-      <div class="input-group">
-        <label for="confirmPassword">Confirm Password</label>
-        <input type="password" id="confirmPassword" placeholder="Retype your password" autocomplete="new-password">
-        <div id="confirmError" class="error-message"></div>
-      </div>
-      
-      <div class="terms">
-        By registering, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
-      </div>
-      
-      <button id="registerBtn" onclick="register()">Create Account</button>
-      
-      <div class="links">
-        Already have an account? <a href="login.html">Sign In</a>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // DOM Elements
-    const usernameInput = document.getElementById('username');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const confirmInput = document.getElementById('confirmPassword');
-    const registerBtn = document.getElementById('registerBtn');
-    const strengthMeter = document.getElementById('strengthMeter');
-    
-    // Error elements
-    const usernameError = document.getElementById('usernameError');
-    const emailError = document.getElementById('emailError');
-    const passwordError = document.getElementById('passwordError');
-    const confirmError = document.getElementById('confirmError');
-    
-    // Password strength checker
-    passwordInput.addEventListener('input', function() {
-      const password = passwordInput.value;
-      let strength = 0;
-      
-      // Length check
-      if (password.length >= 8) strength += 1;
-      if (password.length >= 12) strength += 1;
-      
-      // Complexity checks
-      if (/[A-Z]/.test(password)) strength += 1;
-      if (/[0-9]/.test(password)) strength += 1;
-      if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-      
-      // Update meter
-      const width = strength * 20;
-      let color;
-      
-      if (strength <= 1) color = '#ff4d4d'; // Weak
-      else if (strength <= 3) color = '#ffcc00'; // Medium
-      else color = '#4dff4d'; // Strong
-      
-      strengthMeter.style.width = `${width}%`;
-      strengthMeter.style.background = color;
-    });
-    
-    // Form validation
-    function validateForm() {
-      let isValid = true;
-      
-      // Username validation (3-20 chars, alphanumeric)
-      if (!/^[a-zA-Z0-9_]{3,20}$/.test(usernameInput.value)) {
-        usernameError.textContent = "3-20 characters (letters, numbers, _)";
-        usernameError.style.display = "block";
-        isValid = false;
-      } else {
-        usernameError.style.display = "none";
-      }
-      
-      // Email validation
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
-        emailError.textContent = "Please enter a valid email";
-        emailError.style.display = "block";
-        isValid = false;
-      } else {
-        emailError.style.display = "none";
-      }
-      
-      // Password validation
-      if (passwordInput.value.length < 8) {
-        passwordError.textContent = "Password must be at least 8 characters";
-        passwordError.style.display = "block";
-        isValid = false;
-      } else {
-        passwordError.style.display = "none";
-      }
-      
-      // Confirm password
-      if (passwordInput.value !== confirmInput.value) {
-        confirmError.textContent = "Passwords don't match";
-        confirmError.style.display = "block";
-        isValid = false;
-      } else {
-        confirmError.style.display = "none";
-      }
-      
-      return isValid;
-    }
-    
-    // Registration function
-    function register() {
-      if (!validateForm()) return;
-      
-      // Show loading state
-      registerBtn.disabled = true;
-      registerBtn.innerHTML = 'Creating Account <span class="loading"></span>';
-      
-      // Get form values
-      const user = {
-        username: usernameInput.value.trim(),
-        email: emailInput.value.trim(),
-        password: passwordInput.value
-      };
-      
-      // Simulate API call (replace with actual registration)
-      setTimeout(() => {
-        // Check if username exists in localStorage
-        const existingUsers = JSON.parse(localStorage.getItem('excitatioUsers')) || [];
-        const userExists = existingUsers.some(u => u.username === user.username);
-        
-        if (userExists) {
-          usernameError.textContent = "Username already taken";
-          usernameError.style.display = "block";
-          registerBtn.disabled = false;
-          registerBtn.textContent = 'Create Account';
-          return;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excitatio - Register</title>
+    <style>
+        :root {
+            --bg: #090909;
+            --accent: #d60022;
+            --accent-hover: #ff334f;
+            --error: #ff4d4d;
+            --success: #4dff4d;
+            --txt: #f2f2f2;
+            --txt-muted: #aaa;
+            --border: rgba(255,255,255,0.1);
+            --radius: 12px;
+            --shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
         
-        // Add new user (in real app, this would hash the password)
-        existingUsers.push(user);
-        localStorage.setItem('excitatioUsers', JSON.stringify(existingUsers));
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         
-        // Show success and redirect
-        alert(`Account created successfully! Welcome ${user.username}`);
-        window.location.href = "login.html";
-      }, 1500);
-    }
-    
-    // Handle Enter key
-    document.querySelectorAll('input').forEach(input => {
-      input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') register();
-      });
-    });
-  </script>
+        body {
+            background: var(--bg);
+            color: var(--txt);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            margin: auto;
+            padding: 2rem;
+            background: rgba(21, 21, 21, 0.9);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            color: var(--accent);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(214, 0, 34, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--txt-muted);
+            font-size: 0.9rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(15, 15, 15, 0.8);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--txt);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(214, 0, 34, 0.2);
+        }
+        
+        .password-strength {
+            height: 4px;
+            background: #333;
+            margin-top: 0.5rem;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--error);
+            transition: width 0.3s, background 0.3s;
+        }
+        
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+        
+        button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(214, 0, 34, 0.3);
+        }
+        
+        button:disabled {
+            background: #444;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        .alert-error {
+            background: rgba(255, 77, 77, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+        }
+        
+        .alert-success {
+            background: rgba(77, 255, 77, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--txt-muted);
+        }
+        
+        .login-link a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .login-link a:hover {
+            color: var(--accent-hover);
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create Your Account</h1>
+        
+        <div id="registerError" class="alert alert-error"></div>
+        <div id="registerSuccess" class="alert alert-success"></div>
+        
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter username" required minlength="3">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Enter email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Create password" required minlength="8">
+                <div class="password-strength">
+                    <div id="strengthBar" class="strength-bar"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="Repeat password" required>
+            </div>
+            
+            <button type="submit" id="registerButton">
+                <span id="buttonText">Register</span>
+                <span id="buttonSpinner" style="display:none;">⏳</span>
+            </button>
+        </form>
+        
+        <div class="login-link">
+            Already have an account? <a href="login.html">Sign in</a>
+        </div>
+    </div>
 
-  <script>
-    // Background animation (same as login page)
-    const canvas = document.getElementById('chainCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    <!-- Loading spinner CSS -->
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+    </style>
 
-    const elements = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne'];
-    const chains = [];
-    
-    for (let i = 0; i < 200; i++) {
-      chains.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        speedX: (Math.random() * 0.6 - 0.3),
-        speedY: (Math.random() * 0.6 - 0.3),
-        size: Math.random() * 12 + 8,
-        element: elements[Math.floor(Math.random() * elements.length)],
-        opacity: Math.random() * 0.5 + 0.3
-      });
-    }
-
-    function draw() {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      chains.forEach(c => {
-        ctx.fillStyle = `rgba(214, 0, 34, ${c.opacity})`;
-        ctx.font = `${c.size}px monospace`;
-        ctx.fillText(c.element, c.x, c.y);
-
-        c.x += c.speedX;
-        c.y += c.speedY;
-
-        if (c.x > canvas.width + 50) c.x = -50;
-        if (c.y > canvas.height + 50) c.y = -50;
-        if (c.x < -50) c.x = canvas.width + 50;
-        if (c.y < -50) c.y = canvas.height + 50;
-      });
-
-      requestAnimationFrame(draw);
-    }
-
-    draw();
-    
-    window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
-  </script>
-  
-  <script src="register.js"></script>
-
+    <script src="register.js" defer></script>
 </body>
 </html>
