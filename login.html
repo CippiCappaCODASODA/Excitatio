@@ -314,11 +314,11 @@
       setTimeout(() => errorElement.style.animation = 'shake 0.5s', 10);
     }
     
-    function showSuccess(message) {
-      errorElement.style.color = var(--success);
-      errorElement.textContent = message;
-      errorElement.style.display = "block";
-    }
+  function showSuccess(message) {
+    errorElement.style.color = "var(--success)"; // Fixed line
+    errorElement.textContent = message;
+    errorElement.style.display = "block";
+}
     
     // Handle Enter key
     passwordInput.addEventListener('keypress', (e) => {
