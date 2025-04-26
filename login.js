@@ -1,23 +1,31 @@
 function login() {
     const passwordInput = document.getElementById("password").value;
-    const correctPassword = "seninşifren"; // ← Change this to your actual password
+    const correctPassword = "seninşifren"; // CHANGE THIS TO YOUR ACTUAL PASSWORD
     const statusElement = document.getElementById("status");
     const loadingContainer = document.getElementById("loading-container");
     const loadingBar = document.getElementById("loading-bar");
 
+    // Clear previous status
+    statusElement.innerText = "";
+    statusElement.style.color = "";
+
     if (!passwordInput) {
-        alert("Please enter a password!");
+        showStatus("Please enter a password!", "error");
         return;
     }
 
     if (passwordInput === correctPassword) {
-        statusElement.innerText = "Correct Password";
-        statusElement.style.color = "#4CAF50";
+        showStatus("Access granted! Loading...", "success");
         startLoadingAnimation();
     } else {
-        statusElement.innerText = "Incorrect Password";
-        statusElement.style.color = "#f44336";
+        showStatus("Incorrect password", "error");
     }
+}
+
+function showStatus(message, type) {
+    const statusElement = document.getElementById("status");
+    statusElement.innerText = message;
+    statusElement.style.color = type === "success" ? "#4CAF50" : "#f44336";
 }
 
 function startLoadingAnimation() {
@@ -29,31 +37,43 @@ function startLoadingAnimation() {
     
     let width = 0;
     const interval = setInterval(() => {
+        width += 1;
+        loadingBar.style.width = width + "%";
+        
         if (width >= 100) {
             clearInterval(interval);
-            window.location.href = "index.html";
-        } else {
-            width++;
-            loadingBar.style.width = width + "%";
+            redirectToIndex();
         }
     }, 20);
 }
 
-// Add event listener when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Add click event to button
-    const loginButton = document.querySelector('button[onclick="login()"]');
-    if (loginButton) {
-        loginButton.addEventListener('click', login);
-    }
+function redirectToIndex() {
+    // Double-check the correct filename (case-sensitive!)
+    const redirectUrl = "index.html"; 
     
-    // Add Enter key support
-    const passwordInput = document.getElementById("password");
-    if (passwordInput) {
-        passwordInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
+    // Verify the file exists (for debugging)
+    fetch(redirectUrl, { method: 'HEAD' })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = redirectUrl;
+            } else {
+                showStatus("Error: index.html not found!", "error");
+                console.error("Redirect target not found:", redirectUrl);
             }
+        })
+        .catch(error => {
+            showStatus("Connection error", "error");
+            console.error("Redirect failed:", error);
         });
-    }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup button click
+    document.getElementById("loginButton")?.addEventListener('click', login);
+    
+    // Setup Enter key in password field
+    document.getElementById("password")?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') login();
+    });
 });
