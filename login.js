@@ -1,18 +1,28 @@
-document.getElementById("login-form").addEventListener("submit", function (e) {
-  e.preventDefault();
-  
-  const username = document.getElementById("login-username").value.trim();
-  const password = document.getElementById("login-password").value.trim();
+function login() {
+    var passwordInput = document.getElementById("password").value;
+    var correctPassword = "seninşifren"; // ← Burayı kendi şifrene göre değiştir.
 
-  const users = JSON.parse(localStorage.getItem("users")) || [];
+    if (passwordInput === correctPassword) {
+        document.getElementById("status").innerText = "Correct Password";
+        startLoadingAnimation();
+    } else {
+        document.getElementById("status").innerText = "Incorrect Password";
+    }
+}
 
-  const validUser = users.find(user => user.username === username && user.password === password);
+function startLoadingAnimation() {
+    const loadingContainer = document.getElementById("loading-container");
+    const loadingBar = document.getElementById("loading-bar");
+    loadingContainer.style.display = "block"; // Loading bar konteynerini göster
 
-  if (validUser) {
-    localStorage.setItem("currentUser", username); // aktif kullanıcıyı kaydet
-    alert("Giriş başarılı! Ana sayfaya yönlendiriliyorsunuz.");
-    window.location.href = "index.html"; // girişten sonra ana sayfaya
-  } else {
-    alert("Kullanıcı adı veya şifre yanlış!");
-  }
-});
+    let width = 0;
+    const interval = setInterval(() => {
+        if (width >= 100) {
+            clearInterval(interval);
+            window.location.href = "index.html"; // Bar dolunca index.html'e geç
+        } else {
+            width++;
+            loadingBar.style.width = width + "%";
+        }
+    }, 20); // Hızı buradan ayarlanıyor (20ms'de bir %1 artıyor)
+}
