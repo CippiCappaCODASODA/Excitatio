@@ -1,346 +1,413 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Excitatio Login</title>
-  <style>
-    :root {
-      --bg: #090909;
-      --accent: #d60022;
-      --accent-hover: #ff334f;
-      --txt: #f2f2f2;
-      --txt-muted: #aaa;
-      --error: #ff4d4d;
-      --success: #4dff4d;
-      --r: 12px;
-      --shadow: 0 6px 18px rgba(0,0,0,.7);
-      font-family: "Segoe UI", Tahoma, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Excitatio</title>
+    <style>
+        :root {
+            --bg: #090909;
+            --accent: #d60022;
+            --accent-hover: #ff334f;
+            --txt: #f2f2f2;
+            --txt-muted: #aaa;
+            --error: #ff4d4d;
+            --success: #4dff4d;
+            --r: 12px;
+            --shadow: 0 6px 18px rgba(0,0,0,.7);
+            font-family: "Segoe UI", Tahoma, sans-serif;
+        }
 
-    body, html {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: var(--txt);
-      height: 100%;
-      overflow: hidden;
-    }
+        body, html {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--txt);
+            height: 100%;
+            overflow: hidden;
+        }
 
-    #chainCanvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 0;
-    }
+        #chainCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+        }
 
-    .login-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      position: relative;
-      z-index: 2;
-    }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+            z-index: 2;
+        }
 
-    .login-box {
-      width: 90%;
-      max-width: 400px;
-      background: rgba(21, 21, 21, 0.85);
-      backdrop-filter: blur(12px);
-      padding: 2.5rem;
-      border-radius: var(--r);
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255,255,255,.08);
-      text-align: center;
-      animation: fadeIn 0.6s ease-out;
-    }
+        .login-box {
+            width: 90%;
+            max-width: 400px;
+            background: rgba(21, 21, 21, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 2.5rem;
+            border-radius: var(--r);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,.08);
+            text-align: center;
+            animation: fadeIn 0.6s ease-out;
+        }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    .logo {
-      max-width: 120px;
-      margin-bottom: 1.5rem;
-      filter: drop-shadow(0 0 8px rgba(214, 0, 34, 0.6));
-    }
+        .logo {
+            max-width: 120px;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 8px rgba(214, 0, 34, 0.6));
+        }
 
-    h2 {
-      margin: 0 0 1.5rem;
-      color: var(--accent);
-      font-size: 1.8rem;
-      text-shadow: 0 0 10px rgba(214, 0, 34, 0.8);
-    }
+        h2 {
+            margin: 0 0 1.5rem;
+            color: var(--accent);
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px rgba(214, 0, 34, 0.8);
+        }
 
-    .input-group {
-      margin-bottom: 1.5rem;
-      text-align: left;
-    }
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
 
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: var(--txt-muted);
-      font-size: 0.9rem;
-    }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--txt-muted);
+            font-size: 0.9rem;
+        }
 
-    input {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      border-radius: var(--r);
-      border: 1px solid rgba(255,255,255,.1);
-      background: rgba(15, 15, 15, 0.8);
-      color: var(--txt);
-      font-size: 1rem;
-      transition: border-color 0.3s;
-    }
+        input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: var(--r);
+            border: 1px solid rgba(255,255,255,.1);
+            background: rgba(15, 15, 15, 0.8);
+            color: var(--txt);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
 
-    input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(214, 0, 34, 0.3);
-    }
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(214, 0, 34, 0.3);
+        }
 
-    button {
-      width: 100%;
-      background: var(--accent);
-      color: var(--txt);
-      border: none;
-      padding: 0.9rem;
-      border-radius: var(--r);
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 0.5rem;
-    }
+        button {
+            width: 100%;
+            background: var(--accent);
+            color: var(--txt);
+            border: none;
+            padding: 0.9rem;
+            border-radius: var(--r);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
 
-    button:hover {
-      background: var(--accent-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(214, 0, 34, 0.4);
-    }
+        button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(214, 0, 34, 0.4);
+        }
 
-    button:disabled {
-      background: #555;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
 
-    .error-message {
-      color: var(--error);
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-      display: none;
-      animation: shake 0.5s;
-    }
+        .error-message {
+            color: var(--error);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+            animation: shake 0.5s;
+        }
 
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-5px); }
-      40%, 80% { transform: translateX(5px); }
-    }
+        .success-message {
+            color: var(--success);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
 
-    .links {
-      margin-top: 1.5rem;
-      font-size: 0.9rem;
-    }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
 
-    .links a {
-      color: var(--txt-muted);
-      text-decoration: none;
-      transition: color 0.3s;
-      display: inline-block;
-      margin: 0 0.5rem;
-    }
+        .links {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
 
-    .links a:hover {
-      color: var(--accent);
-    }
+        .links a {
+            color: var(--txt-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: inline-block;
+            margin: 0 0.5rem;
+        }
 
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,.3);
-      border-radius: 50%;
-      border-top-color: var(--accent);
-      animation: spin 1s ease-in-out infinite;
-      margin-left: 10px;
-      vertical-align: middle;
-    }
+        .links a:hover {
+            color: var(--accent);
+        }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
 
-    @media (max-width: 480px) {
-      .login-box {
-        padding: 1.8rem;
-      }
-      h2 {
-        font-size: 1.5rem;
-      }
-    }
-  </style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 1.8rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <canvas id="chainCanvas"></canvas>
-  <div class="login-container">
-    <div class="login-box">
-      <img src="Excitatio.png" alt="Excitatio Logo" class="logo">
-      <h2>Secure Login</h2>
-      
-      <div class="input-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Enter your username" autocomplete="username" autofocus>
-      </div>
-      
-      <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
-        <div id="error" class="error-message"></div>
-      </div>
+    <canvas id="chainCanvas"></canvas>
 
-      <div id="status" style="margin-top: 10px; font-size: 14px;"></div>
-      
-      <div id="loading-container" style="width: 100%; background-color: black; height: 10px; margin-top: 20px; display: none;">
-        <div id="loading-bar" style="width: 0%; height: 100%; background-color: red;"></div>
-      </div>
-      
-      <button type="button" onclick="login()" id="loginButton">Enter Cipher</button>
+    <div class="login-container">
+        <div class="login-box">
+            <img src="Excitatio.png" alt="Excitatio Logo" class="logo">
+            <h2>Secure Login</h2>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter your username" autocomplete="username" autofocus>
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+                    <div id="error" class="error-message"></div>
+                </div>
 
-      <div class="links">
-        <a href="index.html">← Return Home</a>
-        <a href="#" id="forgotLink">Forgot Password?</a>
-      </div>
+                <button type="submit" id="loginButton">Login</button>
+            </form>
+
+            <div class="links">
+                <a href="index.html">← Return Home</a>
+                <a href="#" id="forgotLink">Forgot Password?</a>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // Fixed: Now checks localStorage for registered users
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const loginBtn = document.getElementById('loginButton');
-    const errorElement = document.getElementById('error');
-    const forgotLink = document.getElementById('forgotLink');
-    const loadingContainer = document.getElementById('loading-container');
-    const loadingBar = document.getElementById('loading-bar');
+    <script>
+        // Complete Login Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const loginForm = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const errorElement = document.getElementById('error');
+            const loginBtn = document.getElementById('loginButton');
+            const forgotLink = document.getElementById('forgotLink');
+            const canvas = document.getElementById('chainCanvas');
+            const ctx = canvas.getContext('2d');
 
-    // Check for existing session
-    if (localStorage.getItem('authUser')) {
-      usernameInput.value = localStorage.getItem('authUser');
-      passwordInput.focus();
-    }
+            // Set canvas size
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
 
-    function login() {
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value.trim();
-      const storedUsers = JSON.parse(localStorage.getItem('users')) || {};
+            // Background animation
+            const elements = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne'];
+            const chains = [];
+            
+            for (let i = 0; i < 200; i++) {
+                chains.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    speedX: (Math.random() * 0.6 - 0.3),
+                    speedY: (Math.random() * 0.6 - 0.3),
+                    size: Math.random() * 12 + 8,
+                    element: elements[Math.floor(Math.random() * elements.length)],
+                    opacity: Math.random() * 0.5 + 0.3
+                });
+            }
 
-      if (!username || !password) {
-        showError("Username and password are required.");
-        return;
-      }
+            function draw() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Simulate loading
-      loadingContainer.style.display = 'block';
-      let width = 0;
-      const interval = setInterval(() => {
-        width += 10;
-        loadingBar.style.width = `${width}%`;
-        if (width >= 100) clearInterval(interval);
-      }, 50);
+                chains.forEach(c => {
+                    ctx.fillStyle = `rgba(214, 0, 34, ${c.opacity})`;
+                    ctx.font = `${c.size}px monospace`;
+                    ctx.fillText(c.element, c.x, c.y);
 
-      // Check credentials after delay (simulate network)
-      setTimeout(() => {
-        if (storedUsers[username] === password) {
-          showSuccess("Login successful! Redirecting...");
-          localStorage.setItem('authUser', username);
-          setTimeout(() => window.location.href = "Excitatio.html", 1500);
-        } else {
-          showError("Incorrect username or password.");
-        }
-        loadingContainer.style.display = 'none';
-        loadingBar.style.width = '0%';
-      }, 800);
-    }
+                    c.x += c.speedX;
+                    c.y += c.speedY;
 
-    function showError(message) {
-      errorElement.textContent = message;
-      errorElement.style.display = "block";
-      errorElement.style.animation = 'none';
-      setTimeout(() => errorElement.style.animation = 'shake 0.5s', 10);
-    }
+                    if (c.x > canvas.width + 50) c.x = -50;
+                    if (c.y > canvas.height + 50) c.y = -50;
+                    if (c.x < -50) c.x = canvas.width + 50;
+                    if (c.y < -50) c.y = canvas.height + 50;
+                });
 
-    function showSuccess(message) {
-      errorElement.style.color = "var(--success)";
-      errorElement.textContent = message;
-      errorElement.style.display = "block";
-    }
+                requestAnimationFrame(draw);
+            }
 
-    // Handle Enter key
-    passwordInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') login();
-    });
+            draw();
 
-    // Forgot password
-    forgotLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      alert("Contact support to reset your password.");
-    });
+            // Auto-fill username if exists
+            if (localStorage.getItem('authUser')) {
+                usernameInput.value = localStorage.getItem('authUser');
+                passwordInput.focus();
+            }
 
-    // Background animation (unchanged)
-    const canvas = document.getElementById('chainCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+            // Form submission handler
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+                const storedUsers = JSON.parse(localStorage.getItem('users')) || {};
 
-    const elements = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne'];
-    const chains = [];
+                // Validation
+                if (!username || !password) {
+                    showError("Username and password are required!");
+                    return;
+                }
 
-    for (let i = 0; i < 200; i++) {
-      chains.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        speedX: (Math.random() * 0.6 - 0.3),
-        speedY: (Math.random() * 0.6 - 0.3),
-        size: Math.random() * 12 + 8,
-        element: elements[Math.floor(Math.random() * elements.length)],
-        opacity: Math.random() * 0.5 + 0.3
-      });
-    }
+                // UI Loading state
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = 'Logging in <span class="loading"></span>';
 
-    function draw() {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+                try {
+                    // Authentication check
+                    if (storedUsers[username] === password) {
+                        // Successful login
+                        localStorage.setItem('authUser', username);
+                        showSuccess("Login successful! Redirecting...");
+                        
+                        // GitHub Pages compatible redirect
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        
+                        // Multiple redirect attempts for GitHub Pages compatibility
+                        const redirectPaths = [
+                            'index.html',
+                            '/index.html',
+                            '/Excitatio/index.html',
+                            window.location.pathname.replace('login.html', 'index.html')
+                        ];
 
-      chains.forEach(c => {
-        ctx.fillStyle = `rgba(214, 0, 34, ${c.opacity})`;
-        ctx.font = `${c.size}px monospace`;
-        ctx.fillText(c.element, c.x, c.y);
+                        for (const path of redirectPaths) {
+                            try {
+                                const fullUrl = new URL(path, window.location.origin).href;
+                                if (await pageExists(fullUrl)) {
+                                    window.location.href = fullUrl;
+                                    return;
+                                }
+                            } catch (e) {
+                                console.warn(`Redirect failed for ${path}:`, e);
+                            }
+                        }
+                        
+                        showError("Redirect failed - index.html not found");
+                    } else {
+                        showError("Invalid username or password");
+                    }
+                } catch (error) {
+                    console.error("Login error:", error);
+                    showError("System error during login");
+                } finally {
+                    // Reset UI
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Login';
+                }
+            });
 
-        c.x += c.speedX;
-        c.y += c.speedY;
+            // Check if page exists
+            async function pageExists(url) {
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    return response.ok;
+                } catch {
+                    return false;
+                }
+            }
 
-        if (c.x > canvas.width + 50) c.x = -50;
-        if (c.y > canvas.height + 50) c.y = -50;
-        if (c.x < -50) c.x = canvas.width + 50;
-        if (c.y < -50) c.y = canvas.height + 50;
-      });
+            // Show error message
+            function showError(message) {
+                if (errorElement) {
+                    errorElement.textContent = message;
+                    errorElement.className = 'error-message active';
+                }
+            }
+            
+            // Show success message
+            function showSuccess(message) {
+                if (errorElement) {
+                    errorElement.textContent = message;
+                    errorElement.className = 'success-message active';
+                }
+            }
 
-      requestAnimationFrame(draw);
-    }
+            // Forgot password handler
+            forgotLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert("Please contact support to reset your password.");
+            });
 
-    draw();
+            // Enter key support
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginForm.dispatchEvent(new Event('submit'));
+                }
+            });
 
-    window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
-  </script>
+            // Window resize handler
+            window.addEventListener('resize', function() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        });
+
+        // Debug utilities
+        window.authDebug = {
+            listUsers: () => JSON.parse(localStorage.getItem('users') || {}),
+            clearAll: () => localStorage.clear(),
+            testLogin: (u, p) => {
+                const users = JSON.parse(localStorage.getItem('users') || {});
+                return users[u] === p;
+            },
+            simulateLogin: (u, p) => {
+                document.getElementById('username').value = u;
+                document.getElementById('password').value = p;
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        };
+    </script>
 </body>
 </html>
