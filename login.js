@@ -42,7 +42,7 @@ function login() {
       
       // Redirect after delay
       setTimeout(() => {
-        window.location.href = "Excitatio.html";
+        window.location.href = "index.html";
       }, 1500);
     } else {
       // Failed attempt
