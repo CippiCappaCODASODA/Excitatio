@@ -209,8 +209,12 @@
         <div id="error" class="error-message"></div>
       </div>
       
-      <button id="loginBtn" onclick="login()">Enter the Cipher</button>
-      
+<div id="loading-container" style="width: 100%; background-color: black; height: 10px; margin-top: 20px; display: none;">
+    <div id="loading-bar" style="width: 0%; height: 100%; background-color: red;"></div>
+</div>
+    
+      <button onclick="login()">Enter Cipher</button>
+
       <div class="links">
         <a href="index.html">← Return Home</a>
         <a href="#" id="forgotLink">Forgot Password?</a>
