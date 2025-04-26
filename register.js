@@ -1,73 +1,109 @@
-// register.js - Fixed Version for GitHub Pages
 document.addEventListener('DOMContentLoaded', function() {
-    const registerForm = document.getElementById('registerForm');
+    // 1. First verify localStorage works
+    try {
+        localStorage.setItem('storage_test', '1');
+        if(localStorage.getItem('storage_test') !== '1') {
+            showError("Browser storage access blocked. Try:", [
+                "- Using Chrome/Firefox",
+                "- Disabling privacy extensions",
+                "- Checking site permissions"
+            ].join('\n'));
+            return;
+        }
+        localStorage.removeItem('storage_test');
+    } catch (e) {
+        showError("Cannot access browser storage: " + e.message);
+        return;
+    }
+
+    // 2. Get elements with null checks
+    const registerForm = document.forms.registerForm || 
+                       document.getElementById('registerForm');
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const errorElement = document.getElementById('error');
 
-    // Debug: Check existing localStorage
-    console.log("Current localStorage:", localStorage);
-    
+    if (!registerForm || !usernameInput || !passwordInput || !errorElement) {
+        console.error("Missing required elements!");
+        return;
+    }
+
+    // 3. Enhanced form handler
     registerForm.addEventListener('submit', function(e) {
-        e.preventDefault(); // Prevent form submission reload
+        e.preventDefault();
         
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
         
-        // Input validation
-        if (!username || !password) {
-            showError("Username and password are required!");
+        // Validation
+        if (!username) {
+            showError("Username required");
+            usernameInput.focus();
             return;
         }
         
-        if (password.length < 6) {
-            showError("Password must be at least 6 characters");
+        if (!password || password.length < 6) {
+            showError("Password must be 6+ characters");
+            passwordInput.focus();
             return;
         }
 
+        // Storage operations
         try {
-            // Get existing users or create new object
-            const users = JSON.parse(localStorage.getItem('users')) || {};
+            const users = JSON.parse(localStorage.getItem('users') || {};
             
-            // Check if username exists
             if (users[username]) {
-                showError("Username already exists!");
+                showError(`Username "${username}" already exists`);
                 return;
             }
             
-            // Add new user
             users[username] = password;
             localStorage.setItem('users', JSON.stringify(users));
             
-            // Debug output
-            console.log("Registration successful! Updated users:", users);
+            console.debug("New user added:", {username, password});
+            showSuccess("Account created! Redirecting...");
             
-            // Show success and redirect
-            showSuccess("Registration successful! Redirecting to login...");
             setTimeout(() => {
                 window.location.href = "login.html";
             }, 1500);
             
-        } catch (error) {
-            console.error("LocalStorage error:", error);
-            showError("Registration failed. Please check console for details.");
+        } catch (e) {
+            console.error("Registration failed:", e);
+            showError("System error. Check console and try again.");
         }
     });
 
     function showError(message) {
+        if (!errorElement) return;
         errorElement.textContent = message;
-        errorElement.style.color = "#ff4d4d";
-        errorElement.style.display = "block";
+        errorElement.style.cssText = `
+            color: #ff4d4d;
+            display: block;
+            padding: 10px;
+            border: 1px solid #ff4d4d;
+            background: rgba(255,0,0,0.1);
+        `;
     }
     
     function showSuccess(message) {
+        if (!errorElement) return;
         errorElement.textContent = message;
-        errorElement.style.color = "#4dff4d";
-        errorElement.style.display = "block";
+        errorElement.style.cssText = `
+            color: #4dff4d;
+            display: block;
+            padding: 10px;
+            border: 1px solid #4dff4d;
+            background: rgba(0,255,0,0.1);
+        `;
     }
-
-    // Debug function to check storage
-    window.debugStorage = function() {
-        console.log("Current users:", JSON.parse(localStorage.getItem('users')));
-    };
 });
+
+// Debug helpers
+window.debugAuth = {
+    clear: () => localStorage.removeItem('users'),
+    list: () => JSON.parse(localStorage.getItem('users') || '{}'),
+    test: (u,p) => { 
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        return users[u] === p;
+    }
+};
