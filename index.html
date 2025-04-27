@@ -362,7 +362,44 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   });
+  
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const user = localStorage.getItem('user');
+    const authArea = document.getElementById('authArea');
+    authArea.innerHTML = '';
 
+    if (user) {
+        const usernameSpan = document.createElement('span');
+        usernameSpan.textContent = `@${user}`;
+
+        const logoutBtn = document.createElement('button');
+        logoutBtn.textContent = 'Logout';
+        logoutBtn.onclick = () => {
+            localStorage.removeItem('user');
+            window.location.reload();
+        };
+
+        authArea.appendChild(usernameSpan);
+        authArea.appendChild(logoutBtn);
+    } else {
+        const loginBtn = document.createElement('button');
+        loginBtn.textContent = 'Login';
+        loginBtn.onclick = () => {
+            window.location.href = "login.html";
+        };
+
+        const registerBtn = document.createElement('button');
+        registerBtn.textContent = 'Register';
+        registerBtn.onclick = () => {
+            window.location.href = "register.html";
+        };
+
+        authArea.appendChild(loginBtn);
+        authArea.appendChild(registerBtn);
+    }
+});
+</script>
 </body>
 </html>
