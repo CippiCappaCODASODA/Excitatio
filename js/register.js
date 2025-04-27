@@ -1,5 +1,5 @@
 
-import { auth } from './firebase-init.js';
+import { auth } from './js/firebase-init.js';
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = "login.html";
         } catch (error) {
             console.error(error);
-            showError(error.message);
+            showError("Registration failed! Email might be already used.");
         } finally {
             registerBtn.disabled = false;
             registerBtn.innerHTML = 'Create Account';

@@ -1,5 +1,5 @@
 
-import { auth } from './firebase-init.js';
+import { auth } from './js/firebase-init.js';
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = "index.html";
         } catch (error) {
             console.error(error);
-            showError(error.message);
+            showError("Incorrect email or password!");
         } finally {
             loginBtn.disabled = false;
             loginBtn.innerHTML = 'Login';
