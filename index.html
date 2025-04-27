@@ -401,5 +401,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    showUserCount();
+    showActiveUser();
+});
+
+function showUserCount() {
+    const users = JSON.parse(localStorage.getItem('users')) || {};
+    const count = Object.keys(users).length;
+    const userCountDiv = document.getElementById('userCount');
+    if (userCountDiv) userCountDiv.textContent = `Total Members: ${count}`;
+}
+
+function showActiveUser() {
+    const user = localStorage.getItem('user');
+    const activeUserDiv = document.getElementById('activeUser');
+    if (activeUserDiv) {
+        if (user) {
+            activeUserDiv.textContent = `Active Now: @${user}`;
+        } else {
+            activeUserDiv.textContent = `No Active User`;
+        }
+    }
+}
+  </script>
 </body>
 </html>
