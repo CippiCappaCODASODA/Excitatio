@@ -278,12 +278,11 @@
     <div id="activeUser"></div>
 </main>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
+ <script>
     const authArea = document.getElementById('authArea');
 
     function renderAuth() {
-      const user = localStorage.getItem('user');
+      const user = localStorage.getItem('authUser'); // 'user' yerine 'authUser'
       authArea.innerHTML = '';
 
       if (user) {
@@ -293,8 +292,8 @@
         const logoutBtn = document.createElement('button');
         logoutBtn.textContent = 'Logout';
         logoutBtn.onclick = () => {
-          localStorage.removeItem('user');
-          window.location.reload();
+          localStorage.removeItem('authUser');
+          renderAuth();
         };
 
         authArea.appendChild(usernameSpan);
@@ -318,7 +317,6 @@
     }
 
     renderAuth();
-  });
 </script>
 
 <script>
