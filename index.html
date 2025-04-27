@@ -116,6 +116,13 @@
       left: 100%;
     }
 
+    .member-count {
+      font-size: 0.9em;
+      margin-left: 5px;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
     /* Enhanced Main Content */
     main {
       text-align: center;
@@ -316,12 +323,12 @@
     <a href="about.html" class="nav-link">About Us</a>
     <a href="Excitatio.html" class="nav-link">Cipher</a>
     <a href="forum.html" class="nav-link">Forum</a>
-    <a href="members.html" class="nav-link">Members</a>
+    <a href="members.html" class="nav-link">Members <span class="member-count" id="memberCount">0</span></a>
   </nav>
 
   <main>
     <h1>Welcome to Excitatio</h1>
-    <p>Discover a revolutionary encryption system that transforms your messages using cipher technology. Secure your communications with our unique encoding system.</p>
+    <p id="authMessage">Discover a revolutionary encryption system that transforms your messages using cipher technology. Secure your communications with our unique encoding system.</p>
     
     <div class="features" id="features">
       <div class="feature-card">
@@ -343,13 +350,28 @@
       </div>
     </div>
     
-    <p id="authMessage">Ready to experience encryption? Access the cipher tool above.</p>
+    <p>Ready to experience encryption? Access the cipher tool above.</p>
   </main>
 
   <script>
     // Auth Management
     const authArea = document.getElementById('authArea');
     const authMessage = document.getElementById('authMessage');
+    const memberCountElement = document.getElementById('memberCount');
+
+    function updateMemberCount() {
+      try {
+        const users = JSON.parse(localStorage.getItem('users')) || {};
+        const count = Object.keys(users).length;
+        memberCountElement.textContent = count;
+        
+        // Debug için konsola da yazdıralım
+        console.log(`Total members updated: ${count}`);
+      } catch (error) {
+        console.error('Error updating member count:', error);
+        memberCountElement.textContent = '0';
+      }
+    }
 
     function renderAuth() {
       const user = localStorage.getItem('authUser');
@@ -400,6 +422,9 @@
 
         authMessage.textContent = 'Ready to experience encryption? Login or register to get started.';
       }
+      
+      // Üye sayısını güncelle
+      updateMemberCount();
     }
 
     function updateAuthMessage() {
@@ -456,6 +481,13 @@
     window.addEventListener('DOMContentLoaded', () => {
       renderAuth();
       drawChains();
+      updateMemberCount();
+      
+      // Diğer sayfalardaki değişiklikleri dinlemek için event listener
+      window.addEventListener('storage', () => {
+        updateMemberCount();
+        renderAuth();
+      });
     });
 
     window.addEventListener('resize', () => {
@@ -467,9 +499,25 @@
     window.debugAuth = {
       getCurrentUser: () => localStorage.getItem('authUser'),
       listUsers: () => JSON.parse(localStorage.getItem('users') || '{}'),
+      getMemberCount: () => {
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        return Object.keys(users).length;
+      },
       clearAuth: () => {
         localStorage.removeItem('authUser');
         renderAuth();
+      },
+      simulateNewMember: () => {
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        const randomId = Math.floor(Math.random() * 1000);
+        users[`testuser${randomId}`] = {
+          username: `testuser${randomId}`,
+          email: `test${randomId}@example.com`,
+          password: 'hashedpassword',
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('users', JSON.stringify(users));
+        updateMemberCount();
       }
     };
   </script>
