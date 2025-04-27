@@ -316,6 +316,20 @@
   
   <!-- Load enhanced register.js -->
   <script src="register.js"></script>
+  <!-- Add these right before the closing </body> tag in register.html -->
+<script type="module">
+  import { auth } from './firebase.js';
+  
+  // Initialize auth state observer
+  import { onAuthStateChanged } from 'firebase/auth';
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in, redirect to home page
+      window.location.href = 'index.html';
+    }
+  });
+</script>
 
 </body>
 </html>
