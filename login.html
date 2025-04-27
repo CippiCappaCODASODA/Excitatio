@@ -138,11 +138,19 @@
             animation: shake 0.5s;
         }
 
+        .error-message.active {
+            display: block;
+        }
+
         .success-message {
             color: var(--success);
             font-size: 0.9rem;
             margin-top: 0.5rem;
             display: none;
+        }
+
+        .success-message.active {
+            display: block;
         }
 
         @keyframes shake {
