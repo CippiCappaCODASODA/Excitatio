@@ -316,7 +316,7 @@
                     // Authentication check
                     if (storedUsers[username] === password) {
                         // Successful login
-                        localStorage.setItem('authUser', username);
+                        localStorage.setItem('user', username);
                         showSuccess("Login successful! Redirecting...");
                         
                         // GitHub Pages compatible redirect
