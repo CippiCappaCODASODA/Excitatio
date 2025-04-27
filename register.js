@@ -1,31 +1,34 @@
 // register.js - Fixed Version
-document.getElementById("registerForm").addEventListener("submit", function(event) {
-  event.preventDefault();
+const registerForm = document.getElementById("registerForm");
 
-  const usernameInput = document.getElementById("registerUsername");
-  const passwordInput = document.getElementById("registerPassword");
+registerForm.addEventListener("submit", function (e) {
+  e.preventDefault();
 
-  try {
-    const existingUser = localStorage.getItem(usernameInput.value);
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
 
-    if (existingUser) {
-      alert("This username is already taken.");
-    } else {
-      const newUser = {
-        username: usernameInput.value,
-        password: passwordInput.value,
-        rank: "New Member",
-        signupDate: new Date().toISOString()
-      };
-      localStorage.setItem(newUser.username, JSON.stringify(newUser));
-      alert("Registration successful! Please log in.");
-      window.location.href = "login.html"; // go to login page
-    }
-  } catch (error) {
-    console.error("An error occurred during registration:", error);
-    alert("An unexpected error occurred.");
+  if (!username || !password) {
+    alert("Please fill all fields!");
+    return;
   }
+
+  if (localStorage.getItem(username)) {
+    alert("Username already exists!");
+    return;
+  }
+
+  const user = {
+    username: username,
+    password: password,
+    rank: "New Member",  // 🔥 BURASI: Yeni üyeye "New Member" rankı veriyoruz
+    registeredAt: new Date().toISOString() // 🔥 kayıt tarihini de tutalım
+  };
+
+  localStorage.setItem(username, JSON.stringify(user));
+  alert("Registration successful!");
+  window.location.href = "login.html";
 });
+
 
 
     function showError(message) {
