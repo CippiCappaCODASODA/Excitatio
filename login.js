@@ -1,90 +1,42 @@
 // login.js - Complete Fixed Version
-document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
-    const loginForm = document.getElementById('loginForm');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const errorElement = document.getElementById('error');
-    const loginBtn = document.getElementById('loginButton');
+document.getElementById("loginForm").addEventListener("submit", function(event) {
+  event.preventDefault();
 
-    // Auto-fill username if exists
-    if (localStorage.getItem('authUser')) {
-        usernameInput.value = localStorage.getItem('authUser');
-        passwordInput.focus();
+  const usernameInput = document.getElementById("loginUsername");
+  const passwordInput = document.getElementById("loginPassword");
+
+  try {
+    const storedUser = localStorage.getItem(usernameInput.value);
+
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+
+      if (user.password === passwordInput.value) {
+        // Rank upgrade after 7 days
+        const signupDate = new Date(user.signupDate);
+        const today = new Date();
+        const differenceInDays = (today - signupDate) / (1000 * 60 * 60 * 24);
+
+        if (differenceInDays >= 7 && user.rank === "New Member") {
+          user.rank = "Member";
+          localStorage.setItem(user.username, JSON.stringify(user));
+        }
+
+        localStorage.setItem("loggedInUser", JSON.stringify(user));
+        alert(`Welcome ${user.username}! Rank: ${user.rank}`);
+        window.location.href = "index.html"; // go to homepage
+      } else {
+        alert("Incorrect password.");
+      }
+    } else {
+      alert("User not found.");
     }
+  } catch (error) {
+    console.error("An error occurred during login:", error);
+    alert("An unexpected error occurred.");
+  }
+});
 
-    // Form submission handler
-    loginForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const username = usernameInput.value.trim();
-        const password = passwordInput.value.trim();
-        const storedUsers = JSON.parse(localStorage.getItem('users')) || {};
-
-        // Clear previous messages
-        if (errorElement) {
-            errorElement.textContent = '';
-            errorElement.className = '';
-            errorElement.style.display = 'none';
-        }
-
-        // Validation
-        if (!username || !password) {
-            showError("Username and password are required!");
-            return;
-        }
-
-        // UI Loading state
-        loginBtn.disabled = true;
-        loginBtn.innerHTML = 'Logging in <span class="loading"></span>';
-
-        try {
-            // Authentication check
-            if (storedUsers[username] === password) {
-                // Successful login
-                localStorage.setItem('authUser', username);
-                showSuccess("Login successful! Redirecting...");
-                
-                // GitHub Pages compatible redirect
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Multiple redirect attempts for GitHub Pages compatibility
-                const redirectPaths = [
-                    'index.html',
-                    '/index.html',
-                    '/Excitatio/index.html',
-                    window.location.pathname.replace('login.html', 'index.html')
-                ];
-
-                let redirectSuccess = false;
-                for (const path of redirectPaths) {
-                    try {
-                        const fullUrl = new URL(path, window.location.origin).href;
-                        if (await pageExists(fullUrl)) {
-                            window.location.href = fullUrl;
-                            redirectSuccess = true;
-                            return;
-                        }
-                    } catch (e) {
-                        console.warn(`Redirect failed for ${path}:`, e);
-                    }
-                }
-                
-                if (!redirectSuccess) {
-                    showError("Redirect failed - index.html not found");
-                }
-            } else {
-                showError("Invalid username or password");
-            }
-        } catch (error) {
-            console.error("Login error:", error);
-            showError("System error during login");
-        } finally {
-            // Reset UI
-            loginBtn.disabled = false;
-            loginBtn.innerHTML = 'Login';
-        }
-    });
 
     // Check if page exists
     async function pageExists(url) {
