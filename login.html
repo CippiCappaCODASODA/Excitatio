@@ -409,5 +409,80 @@
             }
         };
     </script>
+    <!-- Add this right before the closing </body> tag in login.html -->
+<script type="module">
+  import { auth, signInWithEmailAndPassword } from './firebase.js';
+  
+  // Update the form submission handler
+  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const errorElement = document.getElementById('error');
+    const loginBtn = document.getElementById('loginButton');
+
+    // Validation
+    if (!email || !password) {
+      showError("Email and password are required!");
+      return;
+    }
+
+    // UI Loading state
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = 'Logging in <span class="loading"></span>';
+
+    try {
+      // Firebase authentication
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      showSuccess("Login successful! Redirecting...");
+      
+      // Redirect after successful login
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      window.location.href = 'index.html';
+      
+    } catch (error) {
+      console.error("Login error:", error);
+      let errorMessage = "Login failed";
+      
+      switch(error.code) {
+        case 'auth/invalid-email':
+          errorMessage = "Invalid email format";
+          break;
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+          errorMessage = "Invalid email or password";
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = "Too many attempts. Try again later";
+          break;
+      }
+      
+      showError(errorMessage);
+    } finally {
+      // Reset UI
+      loginBtn.disabled = false;
+      loginBtn.innerHTML = 'Login';
+    }
+  });
+
+  function showError(message) {
+    const errorElement = document.getElementById('error');
+    if (errorElement) {
+      errorElement.textContent = message;
+      errorElement.className = 'error-message active';
+    }
+  }
+  
+  function showSuccess(message) {
+    const errorElement = document.getElementById('error');
+    if (errorElement) {
+      errorElement.textContent = message;
+      errorElement.className = 'success-message active';
+    }
+  }
+</script>
 </body>
 </html>
