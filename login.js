@@ -21,6 +21,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const password = passwordInput.value.trim();
         const storedUsers = JSON.parse(localStorage.getItem('users')) || {};
 
+        // Clear previous messages
+        if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.className = '';
+            errorElement.style.display = 'none';
+        }
+
         // Validation
         if (!username || !password) {
             showError("Username and password are required!");
@@ -49,11 +56,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.location.pathname.replace('login.html', 'index.html')
                 ];
 
+                let redirectSuccess = false;
                 for (const path of redirectPaths) {
                     try {
                         const fullUrl = new URL(path, window.location.origin).href;
                         if (await pageExists(fullUrl)) {
                             window.location.href = fullUrl;
+                            redirectSuccess = true;
                             return;
                         }
                     } catch (e) {
@@ -61,7 +70,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 
-                showError("Redirect failed - index.html not found");
+                if (!redirectSuccess) {
+                    showError("Redirect failed - index.html not found");
+                }
             } else {
                 showError("Invalid username or password");
             }
@@ -91,6 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
             errorElement.textContent = message;
             errorElement.style.color = "#ff4d4d";
             errorElement.style.display = "block";
+            errorElement.classList.add('active');
         }
     }
     
@@ -100,6 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
             errorElement.textContent = message;
             errorElement.style.color = "#4dff4d";
             errorElement.style.display = "block";
+            errorElement.classList.add('active');
         }
     }
 
@@ -113,10 +126,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Debug utilities
 window.authDebug = {
-    listUsers: () => JSON.parse(localStorage.getItem('users') || {}),
+    listUsers: () => JSON.parse(localStorage.getItem('users') || '{}'),
     clearAll: () => localStorage.clear(),
     testLogin: (u, p) => {
-        const users = JSON.parse(localStorage.getItem('users') || {});
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
         return users[u] === p;
     },
     simulateLogin: (u, p) => {
