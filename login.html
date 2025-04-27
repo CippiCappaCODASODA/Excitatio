@@ -228,12 +228,12 @@
             <div class="links">
                 <a href="index.html">← Return Home</a>
                 <a href="#" id="forgotLink">Forgot Password?</a>
+                <a href="register.html">Create Account</a>
             </div>
         </div>
     </div>
 
     <script>
-        // Complete Login Functionality
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
             const loginForm = document.getElementById('loginForm');
@@ -302,6 +302,13 @@
                 const password = passwordInput.value.trim();
                 const storedUsers = JSON.parse(localStorage.getItem('users')) || {};
 
+                // Clear previous messages
+                if (errorElement) {
+                    errorElement.textContent = '';
+                    errorElement.className = '';
+                    errorElement.style.display = 'none';
+                }
+
                 // Validation
                 if (!username || !password) {
                     showError("Username and password are required!");
@@ -313,10 +320,23 @@
                 loginBtn.innerHTML = 'Logging in <span class="loading"></span>';
 
                 try {
+                    // Simple hash function (in a real app, use proper hashing)
+                    function simpleHash(str) {
+                        let hash = 0;
+                        for (let i = 0; i < str.length; i++) {
+                            const char = str.charCodeAt(i);
+                            hash = (hash << 5) - hash + char;
+                            hash |= 0; // Convert to 32bit integer
+                        }
+                        return hash.toString();
+                    }
+
+                    const hashedPassword = simpleHash(password);
+                    
                     // Authentication check
-                    if (storedUsers[username] === password) {
+                    if (storedUsers[username] && storedUsers[username].password === hashedPassword) {
                         // Successful login
-                        localStorage.setItem('user', username);
+                        localStorage.setItem('authUser', username);
                         showSuccess("Login successful! Redirecting...");
                         
                         // GitHub Pages compatible redirect
@@ -330,11 +350,13 @@
                             window.location.pathname.replace('login.html', 'index.html')
                         ];
 
+                        let redirectSuccess = false;
                         for (const path of redirectPaths) {
                             try {
                                 const fullUrl = new URL(path, window.location.origin).href;
                                 if (await pageExists(fullUrl)) {
                                     window.location.href = fullUrl;
+                                    redirectSuccess = true;
                                     return;
                                 }
                             } catch (e) {
@@ -342,7 +364,9 @@
                             }
                         }
                         
-                        showError("Redirect failed - index.html not found");
+                        if (!redirectSuccess) {
+                            showError("Redirect failed - index.html not found");
+                        }
                     } else {
                         showError("Invalid username or password");
                     }
@@ -385,7 +409,7 @@
             // Forgot password handler
             forgotLink.addEventListener('click', function(e) {
                 e.preventDefault();
-                alert("Please contact support to reset your password.");
+                alert("Password reset feature is not implemented yet.\nPlease contact support for assistance.");
             });
 
             // Enter key support
@@ -404,11 +428,20 @@
 
         // Debug utilities
         window.authDebug = {
-            listUsers: () => JSON.parse(localStorage.getItem('users') || {}),
+            listUsers: () => JSON.parse(localStorage.getItem('users') || '{}'),
             clearAll: () => localStorage.clear(),
             testLogin: (u, p) => {
-                const users = JSON.parse(localStorage.getItem('users') || {});
-                return users[u] === p;
+                const users = JSON.parse(localStorage.getItem('users') || '{}');
+                if (!users[u]) return false;
+                
+                // Simple hash for testing
+                let hash = 0;
+                for (let i = 0; i < p.length; i++) {
+                    const char = p.charCodeAt(i);
+                    hash = (hash << 5) - hash + char;
+                    hash |= 0;
+                }
+                return users[u].password === hash.toString();
             },
             simulateLogin: (u, p) => {
                 document.getElementById('username').value = u;
