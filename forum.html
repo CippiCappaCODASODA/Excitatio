@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excitatio Forum</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --background: #0f172a;
+      --surface: #1e293b;
+      --surface-light: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent: #ec4899;
+      --success: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background-color: var(--surface);
+      padding: 1.5rem;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .forum-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .forum-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      position: relative;
+      padding-left: 1rem;
+    }
+
+    .section-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, var(--primary), var(--accent));
+      border-radius: 4px;
+    }
+
+    .section-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--text-primary);
+      border: 1px solid var(--surface-light);
+    }
+
+    .btn-outline:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .forum-threads {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .forum-thread {
+      background-color: var(--surface);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .forum-thread:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .thread-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+
+    .thread-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .thread-title a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .thread-title a:hover {
+      color: var(--primary);
+    }
+
+    .thread-meta {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .thread-stats {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    .pinned {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      background-color: rgba(236, 72, 153, 0.1);
+      color: var(--accent);
+      padding: 0.25rem 0.5rem;
+      border-radius: 999px;
+      margin-left: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .thread-meta, .thread-stats {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .forum-thread {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">Excitatio</div>
+</header>
+
+<div class="forum-container">
+
+  <div class="forum-section">
+    <div class="section-header">
+      <h2 class="section-title">Announcements</h2>
+      <div class="section-actions">
+        <button class="btn btn-outline">
+          <i class="fas fa-filter"></i> Filter
+        </button>
+        <button class="btn btn-primary">
+          <i class="fas fa-plus"></i> New Thread
+        </button>
+      </div>
+    </div>
+
+    <div class="forum-threads">
+      <div class="forum-thread">
+        <div class="thread-header">
+          <h3 class="thread-title">
+            <a href="#">Welcome! Leave Your First Post</a>
+            <span class="pinned"><i class="fas fa-thumbtack"></i> Pinned</span>
+          </h3>
+          <i class="fas fa-bell" style="color: var(--text-secondary);"></i>
+        </div>
+        <p class="thread-excerpt">Introduce yourself to the community and get to know other members...</p>
+        <div class="thread-meta">
+          <span><i class="fas fa-user"></i> ExcitatioBot</span>
+          <span><i class="far fa-clock"></i> 2 hours ago</span>
+          <span><i class="far fa-comment"></i> 12 replies</span>
+        </div>
+        <div class="thread-stats">
+          <span class="stat"><i class="fas fa-eye"></i> 245 views</span>
+          <span class="stat"><i class="fas fa-heart" style="color: var(--accent);"></i> 18 likes</span>
+        </div>
+      </div>
+
+      <div class="forum-thread">
+        <div class="thread-header">
+          <h3 class="thread-title">
+            <a href="#">Forum Rules and Announcements</a>
+            <span class="pinned"><i class="fas fa-thumbtack"></i> Pinned</span>
+          </h3>
+          <i class="fas fa-check-circle" style="color: var(--success);"></i>
+        </div>
+        <p class="thread-excerpt">Please read these guidelines before participating in our community...</p>
+        <div class="thread-meta">
+          <span><i class="fas fa-user"></i> Admin</span>
+          <span><i class="far fa-clock"></i> Yesterday</span>
+          <span><i class="far fa-comment"></i> 5 replies</span>
+        </div>
+        <div class="thread-stats">
+          <span class="stat"><i class="fas fa-eye"></i> 189 views</span>
+          <span class="stat"><i class="fas fa-heart" style="color: var(--accent);"></i> 24 likes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="forum-section">
+    <div class="section-header">
+      <h2 class="section-title">General Discussions</h2>
+      <div class="section-actions">
+        <button class="btn btn-outline">
+          <i class="fas fa-filter"></i> Filter
+        </button>
+        <button class="btn btn-primary">
+          <i class="fas fa-plus"></i> New Thread
+        </button>
+      </div>
+    </div>
+
+    <div class="forum-threads">
+      <div class="forum-thread">
+        <div class="thread-header">
+          <h3 class="thread-title"><a href="#">Chat About Current Developments</a></h3>
+          <i class="fas fa-fire" style="color: #f97316;"></i>
+        </div>
+        <p class="thread-excerpt">What are you currently working on? Share your progress and get feedback...</p>
+        <div class="thread-meta">
+          <span><i class="fas fa-user"></i> User123</span>
+          <span><i class="far fa-clock"></i> 1 hour ago</span>
+          <span><i class="far fa-comment"></i> 7 replies</span>
+        </div>
+        <div class="thread-stats">
+          <span class="stat"><i class="fas fa-eye"></i> 98 views</span>
+          <span class="stat"><i class="fas fa-heart" style="color: var(--accent);"></i> 5 likes</span>
+        </div>
+      </div>
+
+      <div class="forum-thread">
+        <div class="thread-header">
+          <h3 class="thread-title"><a href="#">Where Is Excitatio Heading?</a></h3>
+          <i class="fas fa-star" style="color: #eab308;"></i>
+        </div>
+        <p class="thread-excerpt">Discussion about the future roadmap and upcoming features...</p>
+        <div class="thread-meta">
+          <span><i class="fas fa-user"></i> Thinker</span>
+          <span><i class="far fa-clock"></i> 3 days ago</span>
+          <span><i class="far fa-comment"></i> 23 replies</span>
+        </div>
+        <div class="thread-stats">
+          <span class="stat"><i class="fas fa-eye"></i> 342 views</span>
+          <span class="stat"><i class="fas fa-heart" style="color: var(--accent);"></i> 42 likes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="forum-section">
+    <div class="section-header">
+      <h2 class="section-title">Suggestions</h2>
+      <div class="section-actions">
+        <button class="btn btn-outline">
+          <i class="fas fa-filter"></i> Filter
+        </button>
+        <button class="btn btn-primary">
+          <i class="fas fa-plus"></i> New Thread
+        </button>
+      </div>
+    </div>
+
+    <div class="forum-threads">
+      <div class="forum-thread">
+        <div class="thread-header">
+          <h3 class="thread-title"><a href="#">New Feature Suggestions</a></h3>
+          <i class="fas fa-lightbulb" style="color: #84cc16;"></i>
+        </div>
+        <p class="thread-excerpt">What features would you like to see implemented in future updates?</p>
+        <div class="thread-meta">
+          <span><i class="fas fa-user"></i> IdeaMaster</span>
+          <span><i class="far fa-clock"></i> 5 days ago</span>
+          <span><i class="far fa-comment"></i> 15 replies</span>
+        </div>
+        <div class="thread-stats">
+          <span class="stat"><i class="fas fa-eye"></i> 210 views</span>
+          <span class="stat"><i class="fas fa-heart" style="color: var(--accent);"></i> 31 likes</span>
+        </div>
+      </div>
+
+      <div class="forum-thread">
+        <div class="thread-header">
+          <h3 class="thread-title"><a href="#">Forum Improvement Ideas</a></h3>
+          <i class="fas fa-cog" style="color: #06b6d4;"></i>
+        </div>
+        <p class="thread-excerpt">How can we make this forum better? Share your thoughts and suggestions...</p>
+        <div class="thread-meta">
+          <span><i class="fas fa-user"></i> Admin</span>
+          <span><i class="far fa-clock"></i> 1 week ago</span>
+          <span><i class="far fa-comment"></i> 8 replies</span>
+        </div>
+        <div class="thread-stats">
+          <span class="stat"><i class="fas fa-eye"></i> 176 views</span>
+          <span class="stat"><i class="fas fa-heart" style="color: var(--accent);"></i> 19 likes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
