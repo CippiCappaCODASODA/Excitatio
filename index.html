@@ -276,7 +276,7 @@
 
   <header>
     <div class="left">
-      <img src="assets/Excitatio.png" alt="Excitatio Logo" class="logo" />
+      <img src="Excitatio.png" alt="Excitatio Logo" class="logo" />
       <div class="title">BEYOND INFINITY</div>
     </div>
     <div class="auth" id="authArea"></div>
@@ -315,47 +315,48 @@
     <p>Ready to experience encryption? Access the cipher tool above.</p>
   </main>
 
-  
-<script type="module">
-import { auth } from './js/firebase-init.js';
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  <script>
+    const authArea = document.getElementById('authArea');
 
-const authArea = document.getElementById('authArea');
+    function renderAuth() {
+      const user = localStorage.getItem('user');
+      authArea.innerHTML = '';
 
-function renderAuth() {
-  authArea.innerHTML = '';
+      if (user) {
+        const usernameSpan = document.createElement('span');
+        usernameSpan.textContent = `@${user}`;
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const usernameSpan = document.createElement('span');
-      usernameSpan.textContent = user.email;
+        const logoutBtn = document.createElement('button');
+        logoutBtn.textContent = 'Logout';
+        logoutBtn.onclick = () => {
+          localStorage.removeItem('user');
+          renderAuth();
+        };
 
-      const logoutBtn = document.createElement('button');
-      logoutBtn.textContent = 'Logout';
-      logoutBtn.onclick = () => {
-        signOut(auth).then(() => window.location.reload());
-      };
+        authArea.appendChild(usernameSpan);
+        authArea.appendChild(logoutBtn);
+      } else {
+        const loginBtn = document.createElement('button');
+        loginBtn.textContent = 'Login';
+        loginBtn.onclick = () => {
+  window.location.href = "login.html";
+};
 
-      authArea.appendChild(usernameSpan);
-      authArea.appendChild(logoutBtn);
-    } else {
-      const loginBtn = document.createElement('button');
-      loginBtn.textContent = 'Login';
-      loginBtn.onclick = () => window.location.href = "login.html";
 
-      const registerBtn = document.createElement('button');
-      registerBtn.textContent = 'Register';
-      registerBtn.onclick = () => window.location.href = "register.html";
+        const registerBtn = document.createElement('button');
+        registerBtn.textContent = 'Register';
+       registerBtn.onclick = () => {
+  window.location.href = "register.html";
+};
 
-      authArea.appendChild(loginBtn);
-      authArea.appendChild(registerBtn);
+
+        authArea.appendChild(loginBtn);
+        authArea.appendChild(registerBtn);
+      }
     }
-  });
-}
 
-renderAuth();
-</script>
-
+    renderAuth();
+  </script>
 
   <script>
     const canvas = document.getElementById('chainCanvas');
