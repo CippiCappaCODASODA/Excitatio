@@ -31,7 +31,6 @@
       z-index: 0;
     }
 
-    /* Enhanced Header */
     header {
       display: flex;
       align-items: center;
@@ -71,7 +70,6 @@
       text-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 
-    /* Enhanced Navigation */
     nav {
       display: flex;
       gap: 1.5rem;
@@ -123,7 +121,6 @@
       font-weight: bold;
     }
 
-    /* Enhanced Main Content */
     main {
       text-align: center;
       margin: 6rem auto;
@@ -176,7 +173,6 @@
       margin-right: auto;
     }
 
-    /* New Features Section */
     .features {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -216,36 +212,37 @@
       line-height: 1.5;
     }
 
-    /* Enhanced Auth Section */
     .auth {
       display: flex;
       align-items: center;
       gap: 1rem;
     }
 
-    .auth span {
-      font-size: 0.95rem;
-      color: var(--txt-muted);
-    }
-
-    .auth button {
-      background: none;
-      border: 1px solid var(--accent);
-      color: var(--txt);
-      padding: 0.5rem 1rem;
+    .auth-btn {
+      padding: 0.5rem 1.2rem;
       border-radius: var(--r);
       cursor: pointer;
       font-size: 0.9rem;
       transition: all 0.2s;
     }
 
-    .auth button:hover {
+    .login-btn {
       background: var(--accent);
+      border: none;
+      color: white;
+    }
+
+    .register-btn {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--txt);
+    }
+
+    .auth-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(214, 0, 34, 0.4);
     }
 
-    /* User Profile Section */
     .user-profile {
       display: flex;
       align-items: center;
@@ -262,9 +259,24 @@
       justify-content: center;
       font-weight: bold;
       text-transform: uppercase;
+      cursor: pointer;
     }
 
-    /* Responsive Adjustments */
+    .logout-btn {
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: 1px solid var(--error);
+      color: var(--error);
+      border-radius: var(--r);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: var(--error);
+      color: white;
+    }
+
     @media (max-width: 768px) {
       header {
         flex-direction: column;
@@ -301,14 +313,13 @@
         width: 100%;
       }
 
-      .auth button {
+      .auth-btn {
         width: 100%;
       }
     }
   </style>
 </head>
 <body>
-
   <canvas id="chainCanvas"></canvas>
 
   <header>
@@ -366,9 +377,10 @@
     // Update member count from PocketBase
     async function updateMemberCount() {
       try {
-        const result = await pb.collection('users').getList(1, 1);
+        const result = await pb.collection('users').getList(1, 1, {
+          filter: 'verified = true'
+        });
         memberCountElement.textContent = result.totalItems;
-        console.log(`Total members: ${result.totalItems}`);
       } catch (error) {
         console.error('Error updating member count:', error);
         memberCountElement.textContent = '0';
@@ -381,39 +393,48 @@
 
       if (pb.authStore.isValid) {
         // User is logged in
-        const userContainer = document.createElement('div');
-        userContainer.className = 'user-profile';
+        const user = pb.authStore.model;
+        
+        const profileContainer = document.createElement('div');
+        profileContainer.className = 'user-profile';
 
+        // Avatar
         const avatar = document.createElement('div');
         avatar.className = 'user-avatar';
-        avatar.textContent = pb.authStore.model.username.charAt(0).toUpperCase();
+        avatar.textContent = user.username?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase();
+        avatar.onclick = () => window.location.href = 'profile.html';
 
+        // Username
         const usernameSpan = document.createElement('span');
-        usernameSpan.textContent = `@${pb.authStore.model.username}`;
+        usernameSpan.textContent = user.username || user.email.split('@')[0];
+        usernameSpan.style.fontWeight = '500';
 
+        // Logout Button
         const logoutBtn = document.createElement('button');
+        logoutBtn.className = 'logout-btn';
         logoutBtn.textContent = 'Logout';
         logoutBtn.onclick = async () => {
           pb.authStore.clear();
-          await renderAuth();
-          updateAuthMessage();
+          window.location.reload();
         };
 
-        userContainer.appendChild(avatar);
-        userContainer.appendChild(usernameSpan);
-        authArea.appendChild(userContainer);
+        profileContainer.appendChild(avatar);
+        profileContainer.appendChild(usernameSpan);
+        authArea.appendChild(profileContainer);
         authArea.appendChild(logoutBtn);
 
-        authMessage.textContent = `Welcome back, ${pb.authStore.model.username}! Ready to continue your secure communications?`;
+        authMessage.textContent = `Welcome back, ${user.username || user.email}! Ready to continue your secure communications?`;
       } else {
         // User is not logged in
         const loginBtn = document.createElement('button');
+        loginBtn.className = 'auth-btn login-btn';
         loginBtn.textContent = 'Login';
         loginBtn.onclick = () => {
           window.location.href = "login.html";
         };
 
         const registerBtn = document.createElement('button');
+        registerBtn.className = 'auth-btn register-btn';
         registerBtn.textContent = 'Register';
         registerBtn.onclick = () => {
           window.location.href = "register.html";
@@ -428,13 +449,29 @@
       await updateMemberCount();
     }
 
-    function updateAuthMessage() {
-      if (pb.authStore.isValid) {
-        authMessage.textContent = `Welcome back, ${pb.authStore.model.username}! Ready to continue your secure communications?`;
-      } else {
-        authMessage.textContent = 'Ready to experience encryption? Login or register to get started.';
+    // Initialize
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Load auth from cookie
+        pb.authStore.loadFromCookie(document.cookie);
+        
+        // Refresh auth if valid
+        if (pb.authStore.isValid) {
+          await pb.collection('users').authRefresh();
+        }
+        
+        await renderAuth();
+        drawChains();
+        
+        // Listen to auth changes
+        pb.authStore.onChange(() => {
+          renderAuth();
+        }, true);
+      } catch (err) {
+        console.error("Initialization error:", err);
+        pb.authStore.clear();
       }
-    }
+    });
 
     // Background Animation
     const canvas = document.getElementById('chainCanvas');
@@ -477,35 +514,10 @@
       requestAnimationFrame(drawChains);
     }
 
-    // Initialize
-    window.addEventListener('DOMContentLoaded', async () => {
-      // Load existing auth from localStorage
-      pb.authStore.loadFromCookie(document.cookie);
-      
-      await renderAuth();
-      drawChains();
-      
-      // Listen to auth changes
-      pb.authStore.onChange(() => {
-        renderAuth();
-        updateMemberCount();
-      }, true);
-    });
-
     window.addEventListener('resize', () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     });
-
-    // Debug utility
-    window.debugAuth = {
-      getCurrentUser: () => pb.authStore.model,
-      getAuthStatus: () => pb.authStore.isValid,
-      clearAuth: () => {
-        pb.authStore.clear();
-        renderAuth();
-      }
-    };
   </script>
 </body>
 </html>
