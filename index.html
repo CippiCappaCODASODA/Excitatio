@@ -248,6 +248,7 @@
       display: flex;
       align-items: center;
       gap: 0.8rem;
+      margin-right: 1rem;
     }
 
     .user-avatar {
@@ -317,6 +318,11 @@
       .auth-btn {
         width: 100%;
       }
+
+      .user-profile {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+      }
     }
   </style>
 </head>
@@ -378,7 +384,7 @@
     // Update member count from PocketBase
     async function updateMemberCount() {
       try {
-        const result = await pb.collection('users').getList(1, 1, {
+        const result = await pb.collection('users').getList(1, 50, {
           filter: 'verified = true'
         });
         memberCountElement.textContent = result.totalItems;
@@ -415,8 +421,14 @@
         logoutBtn.className = 'logout-btn';
         logoutBtn.textContent = 'Logout';
         logoutBtn.onclick = async () => {
-          pb.authStore.clear();
-          window.location.reload();
+          try {
+            pb.authStore.clear();
+            // Clear the cookie
+            document.cookie = 'pb_auth=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            window.location.reload();
+          } catch (err) {
+            console.error('Logout error:', err);
+          }
         };
 
         profileContainer.appendChild(avatar);
@@ -458,7 +470,12 @@
         
         // Refresh auth if valid
         if (pb.authStore.isValid) {
-          await pb.collection('users').authRefresh();
+          try {
+            await pb.collection('users').authRefresh();
+          } catch (refreshErr) {
+            console.log("Auth refresh failed, clearing auth");
+            pb.authStore.clear();
+          }
         }
         
         await renderAuth();
@@ -468,6 +485,12 @@
         pb.authStore.onChange(() => {
           renderAuth();
         }, true);
+        
+        // Set the auth cookie
+        pb.authStore.onChange(() => {
+          document.cookie = pb.authStore.exportToCookie({ httpOnly: false });
+        }, true);
+        
       } catch (err) {
         console.error("Initialization error:", err);
         pb.authStore.clear();
