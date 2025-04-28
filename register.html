@@ -376,6 +376,7 @@
 
     // Registration Form Logic
     document.addEventListener('DOMContentLoaded', function() {
+      const pb = new PocketBase('http://127.0.0.1:8090'); // PocketBase sunucu URL
       const registerForm = document.getElementById('registerForm');
       const usernameInput = document.getElementById('username');
       const emailInput = document.getElementById('email');
@@ -400,17 +401,6 @@
         password: false,
         confirm: false
       };
-      
-      // Simple hash function (in production use proper hashing like bcrypt)
-      function simpleHash(str) {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-          const char = str.charCodeAt(i);
-          hash = (hash << 5) - hash + char;
-          hash |= 0; // Convert to 32bit integer
-        }
-        return hash.toString();
-      }
       
       // Check password requirements
       function checkPasswordRequirements(password) {
@@ -591,8 +581,8 @@
         updateFormValidation();
       });
       
-      // Form submission
-      registerForm.addEventListener('submit', function(e) {
+      // Form submission with PocketBase
+      registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const username = usernameInput.value.trim();
@@ -604,32 +594,18 @@
         registerBtn.innerHTML = 'Creating account <span class="loading"></span>';
         
         try {
-          // Get existing users
-          const users = JSON.parse(localStorage.getItem('users')) || {};
-          
-          // Check if username already exists
-          if (users[username]) {
-            errorElement.textContent = 'Username already exists';
-            errorElement.style.display = 'block';
-            registerBtn.disabled = false;
-            registerBtn.innerHTML = 'Create Account';
-            return;
-          }
-          
-          // Create user object
+          // PocketBase'e kayıt isteği
           const userData = {
             username: username,
             email: email,
-            password: simpleHash(password), // In production, use proper hashing
-            createdAt: new Date().toISOString(),
-            lastLogin: null
+            password: password,
+            passwordConfirm: password,
+            emailVisibility: true
           };
+
+          await pb.collection('users').create(userData);
           
-          // Save to localStorage
-          users[username] = userData;
-          localStorage.setItem('users', JSON.stringify(users));
-          
-          // Show success message
+          // Başarılı kayıt
           errorElement.style.display = 'none';
           successElement.textContent = 'Registration successful! Redirecting to login...';
           successElement.style.display = 'block';
@@ -641,8 +617,19 @@
           
         } catch (error) {
           console.error('Registration error:', error);
-          errorElement.textContent = 'Registration failed. Please try again.';
+          
+          // PocketBase hata mesajını işle
+          let errorMessage = 'Registration failed. Please try again.';
+          if (error.data && error.data.data) {
+            const fieldErrors = error.data.data;
+            if (fieldErrors.username) errorMessage = fieldErrors.username.message;
+            else if (fieldErrors.email) errorMessage = fieldErrors.email.message;
+            else if (fieldErrors.password) errorMessage = fieldErrors.password.message;
+          }
+          
+          errorElement.textContent = errorMessage;
           errorElement.style.display = 'block';
+        } finally {
           registerBtn.disabled = false;
           registerBtn.innerHTML = 'Create Account';
         }
@@ -652,8 +639,6 @@
       updateFormValidation();
     });
   </script>
-<script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
-<script src="register.js"></script>
-
+  <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
 </body>
 </html>
