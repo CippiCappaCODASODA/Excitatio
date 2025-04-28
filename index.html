@@ -423,7 +423,7 @@
         authArea.appendChild(profileContainer);
         authArea.appendChild(logoutBtn);
 
-        authMessage.textContent = Welcome back, ${user.username || user.email}! Ready to continue your secure communications?;
+        authMessage.textContent = `Welcome back, ${user.username || user.email}! Ready to continue your secure communications?`;
       } else {
         // User is not logged in
         const loginBtn = document.createElement('button');
@@ -498,8 +498,8 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       chains.forEach(chain => {
-        ctx.fillStyle = rgba(214, 0, 34, ${Math.random() * 0.4 + 0.3});
-        ctx.font = ${chain.size}px monospace;
+        ctx.fillStyle = `rgba(214, 0, 34, ${Math.random() * 0.4 + 0.3})`;
+        ctx.font = `${chain.size}px monospace`;
         ctx.fillText(chain.element, chain.x, chain.y);
 
         chain.x += chain.speedX;
