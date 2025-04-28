@@ -1,1 +1,1 @@
-Project Excitatio created for fun.
+Project Excitatio created for fun :)
