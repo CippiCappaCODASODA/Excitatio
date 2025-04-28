@@ -353,47 +353,49 @@
     <p>Ready to experience encryption? Access the cipher tool above.</p>
   </main>
 
+  <script src="https://unpkg.com/pocketbase@0.15.3/dist/pocketbase.umd.js"></script>
   <script>
-    // Auth Management
+    // PocketBase client initialization
+    const pb = new PocketBase('http://127.0.0.1:8090');
+    
+    // DOM Elements
     const authArea = document.getElementById('authArea');
     const authMessage = document.getElementById('authMessage');
     const memberCountElement = document.getElementById('memberCount');
 
-    function updateMemberCount() {
+    // Update member count from PocketBase
+    async function updateMemberCount() {
       try {
-        const users = JSON.parse(localStorage.getItem('users')) || {};
-        const count = Object.keys(users).length;
-        memberCountElement.textContent = count;
-        
-        // Debug için konsola da yazdıralım
-        console.log(`Total members updated: ${count}`);
+        const result = await pb.collection('users').getList(1, 1);
+        memberCountElement.textContent = result.totalItems;
+        console.log(`Total members: ${result.totalItems}`);
       } catch (error) {
         console.error('Error updating member count:', error);
         memberCountElement.textContent = '0';
       }
     }
 
-    function renderAuth() {
-      const user = localStorage.getItem('authUser');
+    // Render authentication UI
+    async function renderAuth() {
       authArea.innerHTML = '';
 
-      if (user) {
+      if (pb.authStore.isValid) {
         // User is logged in
         const userContainer = document.createElement('div');
         userContainer.className = 'user-profile';
 
         const avatar = document.createElement('div');
         avatar.className = 'user-avatar';
-        avatar.textContent = user.charAt(0).toUpperCase();
+        avatar.textContent = pb.authStore.model.username.charAt(0).toUpperCase();
 
         const usernameSpan = document.createElement('span');
-        usernameSpan.textContent = `@${user}`;
+        usernameSpan.textContent = `@${pb.authStore.model.username}`;
 
         const logoutBtn = document.createElement('button');
         logoutBtn.textContent = 'Logout';
-        logoutBtn.onclick = () => {
-          localStorage.removeItem('authUser');
-          renderAuth();
+        logoutBtn.onclick = async () => {
+          pb.authStore.clear();
+          await renderAuth();
           updateAuthMessage();
         };
 
@@ -402,7 +404,7 @@
         authArea.appendChild(userContainer);
         authArea.appendChild(logoutBtn);
 
-        authMessage.textContent = `Welcome back, ${user}! Ready to continue your secure communications?`;
+        authMessage.textContent = `Welcome back, ${pb.authStore.model.username}! Ready to continue your secure communications?`;
       } else {
         // User is not logged in
         const loginBtn = document.createElement('button');
@@ -423,14 +425,12 @@
         authMessage.textContent = 'Discover a revolutionary encryption system that transforms your messages using cipher technology. Secure your communications with our unique encoding system.';
       }
       
-      // Üye sayısını güncelle
-      updateMemberCount();
+      await updateMemberCount();
     }
 
     function updateAuthMessage() {
-      const user = localStorage.getItem('authUser');
-      if (user) {
-        authMessage.textContent = `Welcome back, ${user}! Ready to continue your secure communications?`;
+      if (pb.authStore.isValid) {
+        authMessage.textContent = `Welcome back, ${pb.authStore.model.username}! Ready to continue your secure communications?`;
       } else {
         authMessage.textContent = 'Ready to experience encryption? Login or register to get started.';
       }
@@ -478,16 +478,18 @@
     }
 
     // Initialize
-    window.addEventListener('DOMContentLoaded', () => {
-      renderAuth();
-      drawChains();
-      updateMemberCount();
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Load existing auth from localStorage
+      pb.authStore.loadFromCookie(document.cookie);
       
-      // Diğer sayfalardaki değişiklikleri dinlemek için event listener
-      window.addEventListener('storage', () => {
-        updateMemberCount();
+      await renderAuth();
+      drawChains();
+      
+      // Listen to auth changes
+      pb.authStore.onChange(() => {
         renderAuth();
-      });
+        updateMemberCount();
+      }, true);
     });
 
     window.addEventListener('resize', () => {
@@ -497,27 +499,11 @@
 
     // Debug utility
     window.debugAuth = {
-      getCurrentUser: () => localStorage.getItem('authUser'),
-      listUsers: () => JSON.parse(localStorage.getItem('users') || '{}'),
-      getMemberCount: () => {
-        const users = JSON.parse(localStorage.getItem('users') || '{}');
-        return Object.keys(users).length;
-      },
+      getCurrentUser: () => pb.authStore.model,
+      getAuthStatus: () => pb.authStore.isValid,
       clearAuth: () => {
-        localStorage.removeItem('authUser');
+        pb.authStore.clear();
         renderAuth();
-      },
-      simulateNewMember: () => {
-        const users = JSON.parse(localStorage.getItem('users') || '{}');
-        const randomId = Math.floor(Math.random() * 1000);
-        users[`testuser${randomId}`] = {
-          username: `testuser${randomId}`,
-          email: `test${randomId}@example.com`,
-          password: 'hashedpassword',
-          createdAt: new Date().toISOString()
-        };
-        localStorage.setItem('users', JSON.stringify(users));
-        updateMemberCount();
       }
     };
   </script>
