@@ -212,8 +212,8 @@
             
             <form id="loginForm">
                 <div class="input-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" placeholder="Enter your username" autocomplete="username" autofocus>
+                    <label for="username">Username or Email</label>
+                    <input type="text" id="username" placeholder="Enter your username or email" autocomplete="username" autofocus>
                 </div>
                 
                 <div class="input-group">
@@ -235,6 +235,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // PocketBase client initialization
+            const pb = new PocketBase('http://127.0.0.1:8090');
+            
             // DOM Elements
             const loginForm = document.getElementById('loginForm');
             const usernameInput = document.getElementById('username');
@@ -288,30 +291,34 @@
 
             draw();
 
-            // Auto-fill username if exists
-            if (localStorage.getItem('authUser')) {
-                usernameInput.value = localStorage.getItem('authUser');
-                passwordInput.focus();
+            // Auto-fill username if exists in localStorage
+            if (localStorage.getItem('pocketbase_auth')) {
+                try {
+                    const authData = JSON.parse(localStorage.getItem('pocketbase_auth'));
+                    usernameInput.value = authData.record.username || authData.record.email;
+                    passwordInput.focus();
+                } catch (e) {
+                    console.error("Failed to parse auth data:", e);
+                }
             }
 
             // Form submission handler
             loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const username = usernameInput.value.trim();
+                const usernameOrEmail = usernameInput.value.trim();
                 const password = passwordInput.value.trim();
-                const storedUsers = JSON.parse(localStorage.getItem('users')) || {};
 
                 // Clear previous messages
                 if (errorElement) {
                     errorElement.textContent = '';
-                    errorElement.className = '';
+                    errorElement.className = 'error-message';
                     errorElement.style.display = 'none';
                 }
 
                 // Validation
-                if (!username || !password) {
-                    showError("Username and password are required!");
+                if (!usernameOrEmail || !password) {
+                    showError("Username/Email and password are required!");
                     return;
                 }
 
@@ -320,59 +327,34 @@
                 loginBtn.innerHTML = 'Logging in <span class="loading"></span>';
 
                 try {
-                    // Simple hash function (in a real app, use proper hashing)
-                    function simpleHash(str) {
-                        let hash = 0;
-                        for (let i = 0; i < str.length; i++) {
-                            const char = str.charCodeAt(i);
-                            hash = (hash << 5) - hash + char;
-                            hash |= 0; // Convert to 32bit integer
-                        }
-                        return hash.toString();
-                    }
+                    // Authenticate with PocketBase
+                    const authData = await pb.collection('users').authWithPassword(
+                        usernameOrEmail.includes('@') ? usernameOrEmail : usernameOrEmail,
+                        password
+                    );
 
-                    const hashedPassword = simpleHash(password);
+                    // Store auth data in localStorage
+                    localStorage.setItem('pocketbase_auth', JSON.stringify(pb.authStore.export()));
+
+                    // Successful login
+                    showSuccess("Login successful! Redirecting...");
                     
-                    // Authentication check
-                    if (storedUsers[username] && storedUsers[username].password === hashedPassword) {
-                        // Successful login
-                        localStorage.setItem('authUser', username);
-                        showSuccess("Login successful! Redirecting...");
-                        
-                        // GitHub Pages compatible redirect
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        
-                        // Multiple redirect attempts for GitHub Pages compatibility
-                        const redirectPaths = [
-                            'index.html',
-                            '/index.html',
-                            '/Excitatio/index.html',
-                            window.location.pathname.replace('login.html', 'index.html')
-                        ];
+                    // Redirect to home page after delay
+                    setTimeout(() => {
+                        window.location.href = "index.html";
+                    }, 1000);
 
-                        let redirectSuccess = false;
-                        for (const path of redirectPaths) {
-                            try {
-                                const fullUrl = new URL(path, window.location.origin).href;
-                                if (await pageExists(fullUrl)) {
-                                    window.location.href = fullUrl;
-                                    redirectSuccess = true;
-                                    return;
-                                }
-                            } catch (e) {
-                                console.warn(`Redirect failed for ${path}:`, e);
-                            }
-                        }
-                        
-                        if (!redirectSuccess) {
-                            showError("Redirect failed - index.html not found");
-                        }
-                    } else {
-                        showError("Invalid username or password");
-                    }
                 } catch (error) {
                     console.error("Login error:", error);
-                    showError("System error during login");
+                    
+                    // Handle different error cases
+                    if (error.status === 400) {
+                        showError("Invalid username/email or password");
+                    } else if (error.status === 0) {
+                        showError("Cannot connect to server");
+                    } else {
+                        showError("Login failed. Please try again.");
+                    }
                 } finally {
                     // Reset UI
                     loginBtn.disabled = false;
@@ -380,21 +362,12 @@
                 }
             });
 
-            // Check if page exists
-            async function pageExists(url) {
-                try {
-                    const response = await fetch(url, { method: 'HEAD' });
-                    return response.ok;
-                } catch {
-                    return false;
-                }
-            }
-
             // Show error message
             function showError(message) {
                 if (errorElement) {
                     errorElement.textContent = message;
                     errorElement.className = 'error-message active';
+                    errorElement.style.display = 'block';
                 }
             }
             
@@ -403,13 +376,22 @@
                 if (errorElement) {
                     errorElement.textContent = message;
                     errorElement.className = 'success-message active';
+                    errorElement.style.display = 'block';
                 }
             }
 
             // Forgot password handler
-            forgotLink.addEventListener('click', function(e) {
+            forgotLink.addEventListener('click', async function(e) {
                 e.preventDefault();
-                alert("Password reset feature is not implemented yet.\nPlease contact support for assistance.");
+                const email = prompt("Please enter your email address to reset password:");
+                if (email) {
+                    try {
+                        await pb.collection('users').requestPasswordReset(email);
+                        alert("Password reset link sent to your email!");
+                    } catch (error) {
+                        alert("Failed to send reset link. Please check your email address.");
+                    }
+                }
             });
 
             // Enter key support
@@ -425,33 +407,7 @@
                 canvas.height = window.innerHeight;
             });
         });
-
-        // Debug utilities
-        window.authDebug = {
-            listUsers: () => JSON.parse(localStorage.getItem('users') || '{}'),
-            clearAll: () => localStorage.clear(),
-            testLogin: (u, p) => {
-                const users = JSON.parse(localStorage.getItem('users') || '{}');
-                if (!users[u]) return false;
-                
-                // Simple hash for testing
-                let hash = 0;
-                for (let i = 0; i < p.length; i++) {
-                    const char = p.charCodeAt(i);
-                    hash = (hash << 5) - hash + char;
-                    hash |= 0;
-                }
-                return users[u].password === hash.toString();
-            },
-            simulateLogin: (u, p) => {
-                document.getElementById('username').value = u;
-                document.getElementById('password').value = p;
-                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
-            }
-        };
     </script>
     <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
-<script src="login.js"></script>
-
 </body>
 </html>
