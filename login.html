@@ -4,36 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Excitatio</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
-        :root {
-            --bg: #090909;
-            --accent: #d60022;
-            --accent-hover: #ff334f;
-            --txt: #f2f2f2;
-            --txt-muted: #aaa;
-            --error: #ff4d4d;
-            --success: #4dff4d;
-            --r: 12px;
-            --shadow: 0 6px 18px rgba(0,0,0,.7);
-            font-family: "Segoe UI", Tahoma, sans-serif;
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            background: var(--bg);
-            color: var(--txt);
-            height: 100%;
-            overflow: hidden;
-        }
-
-        #chainCanvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 0;
-        }
-
+        /* Özel login sayfası stilleri */
         .login-container {
             display: flex;
             justify-content: center;
@@ -49,8 +22,8 @@
             background: rgba(21, 21, 21, 0.85);
             backdrop-filter: blur(12px);
             padding: 2.5rem;
-            border-radius: var(--r);
-            box-shadow: var(--shadow);
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,.7);
             border: 1px solid rgba(255,255,255,.08);
             text-align: center;
             animation: fadeIn 0.6s ease-out;
@@ -67,105 +40,14 @@
             filter: drop-shadow(0 0 8px rgba(214, 0, 34, 0.6));
         }
 
-        h2 {
-            margin: 0 0 1.5rem;
-            color: var(--accent);
-            font-size: 1.8rem;
-            text-shadow: 0 0 10px rgba(214, 0, 34, 0.8);
-        }
-
         .input-group {
             margin-bottom: 1.5rem;
             text-align: left;
         }
 
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--txt-muted);
-            font-size: 0.9rem;
-        }
-
-        input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border-radius: var(--r);
-            border: 1px solid rgba(255,255,255,.1);
-            background: rgba(15, 15, 15, 0.8);
-            color: var(--txt);
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px rgba(214, 0, 34, 0.3);
-        }
-
-        button {
-            width: 100%;
-            background: var(--accent);
-            color: var(--txt);
-            border: none;
-            padding: 0.9rem;
-            border-radius: var(--r);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 0.5rem;
-        }
-
-        button:hover {
-            background: var(--accent-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(214, 0, 34, 0.4);
-        }
-
-        button:disabled {
-            background: #555;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .error-message {
-            color: var(--error);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-            display: none;
-            animation: shake 0.5s;
-        }
-
-        .success-message {
-            color: var(--success);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-            display: none;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-5px); }
-            40%, 80% { transform: translateX(5px); }
-        }
-
         .links {
             margin-top: 1.5rem;
             font-size: 0.9rem;
-        }
-
-        .links a {
-            color: var(--txt-muted);
-            text-decoration: none;
-            transition: color 0.3s;
-            display: inline-block;
-            margin: 0 0.5rem;
-        }
-
-        .links a:hover {
-            color: var(--accent);
         }
 
         .loading {
@@ -174,7 +56,7 @@
             height: 20px;
             border: 3px solid rgba(255,255,255,.3);
             border-radius: 50%;
-            border-top-color: var(--accent);
+            border-top-color: #d60022;
             animation: spin 1s ease-in-out infinite;
             margin-left: 10px;
             vertical-align: middle;
@@ -182,15 +64,6 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 480px) {
-            .login-box {
-                padding: 1.8rem;
-            }
-            h2 {
-                font-size: 1.5rem;
-            }
         }
     </style>
 </head>
@@ -204,8 +77,8 @@
             
             <form id="loginForm">
                 <div class="input-group">
-                    <label for="loginInput">Email</label>
-                    <input type="text" id="loginInput" placeholder="Enter your email" autocomplete="email" autofocus>
+                    <label for="loginInput">Email or Username</label>
+                    <input type="text" id="loginInput" placeholder="Enter your email or username" autocomplete="username" autofocus>
                 </div>
                 
                 <div class="input-group">
@@ -227,164 +100,6 @@
     </div>
 
     <script src="https://unpkg.com/pocketbase@0.15.3/dist/pocketbase.umd.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const pb = new PocketBase('http://127.0.0.1:8090');
-            const loginForm = document.getElementById('loginForm');
-            const loginInput = document.getElementById('loginInput');
-            const passwordInput = document.getElementById('password');
-            const errorElement = document.getElementById('error');
-            const successElement = document.getElementById('success');
-            const loginBtn = document.getElementById('loginButton');
-            const forgotLink = document.getElementById('forgotLink');
-            const canvas = document.getElementById('chainCanvas');
-            const ctx = canvas.getContext('2d');
-
-            // Background animation
-            const elements = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne'];
-            const chains = [];
-            
-            for (let i = 0; i < 200; i++) {
-                chains.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    speedX: (Math.random() * 0.6 - 0.3),
-                    speedY: (Math.random() * 0.6 - 0.3),
-                    size: Math.random() * 12 + 8,
-                    element: elements[Math.floor(Math.random() * elements.length)],
-                    opacity: Math.random() * 0.5 + 0.3
-                });
-            }
-
-            function draw() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                chains.forEach(c => {
-                    ctx.fillStyle = `rgba(214, 0, 34, ${c.opacity})`;
-                    ctx.font = `${c.size}px monospace`;
-                    ctx.fillText(c.element, c.x, c.y);
-
-                    c.x += c.speedX;
-                    c.y += c.speedY;
-
-                    if (c.x > canvas.width + 50) c.x = -50;
-                    if (c.y > canvas.height + 50) c.y = -50;
-                    if (c.x < -50) c.x = canvas.width + 50;
-                    if (c.y < -50) c.y = canvas.height + 50;
-                });
-
-                requestAnimationFrame(draw);
-            }
-
-            draw();
-
-            // Auto-fill if previously logged in
-            const authData = JSON.parse(localStorage.getItem('pocketbase_auth') || 'null');
-            if (authData && authData.model) {
-                loginInput.value = authData.model.username || authData.model.email;
-                passwordInput.focus();
-            }
-
-            // Form submission
-            loginForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const identity = loginInput.value.trim();
-                const password = passwordInput.value.trim();
-
-                // Clear previous messages
-                errorElement.style.display = 'none';
-                successElement.style.display = 'none';
-
-                // Validation
-                if (!identity || !password) {
-                    showError("Email and password are required!");
-                    return;
-                }
-
-                // UI Loading state
-                loginBtn.disabled = true;
-                loginBtn.innerHTML = 'Logging in <span class="loading"></span>';
-
-                try {
-                    // Authenticate with PocketBase (username or email)
-                    let authData;
-                    if (identity.includes('@')) {
-                        // Email login
-                        authData = await pb.collection('users').authWithPassword(identity, password);
-                    } else {
-                        // Username login
-                        const users = await pb.collection('users').getFullList({
-                            filter: `username = "${identity}"`
-                        });
-                        if (users.length === 0) {
-                            throw new Error("User not found");
-                        }
-                        authData = await pb.collection('users').authWithPassword(users[0].email, password);
-                    }
-                    
-                    // Store auth data
-                    localStorage.setItem('pocketbase_auth', JSON.stringify({
-                        token: pb.authStore.token,
-                        model: pb.authStore.model
-                    }));
-
-                    // Success
-                    showSuccess("Login successful! Redirecting...");
-                    setTimeout(() => {
-                        window.location.href = "index.html";
-                    }, 1500);
-
-                } catch (error) {
-                    console.error('Login error:', error);
-                    
-                    let errorMessage = "Login failed. Please try again.";
-                    if (error.status === 400 || error.message.includes("not found")) {
-                        errorMessage = "Invalid username/email or password";
-                    } else if (error.status === 0) {
-                        errorMessage = "Cannot connect to server";
-                    }
-                    
-                    showError(errorMessage);
-                } finally {
-                    loginBtn.disabled = false;
-                    loginBtn.innerHTML = 'Login';
-                }
-            });
-
-            function showError(message) {
-                errorElement.textContent = message;
-                errorElement.style.display = 'block';
-                successElement.style.display = 'none';
-            }
-            
-            function showSuccess(message) {
-                successElement.textContent = message;
-                successElement.style.display = 'block';
-                errorElement.style.display = 'none';
-            }
-
-            // Forgot password
-            forgotLink.addEventListener('click', async function(e) {
-                e.preventDefault();
-                const email = prompt("Enter your email to reset password:");
-                if (email) {
-                    try {
-                        await pb.collection('users').requestPasswordReset(email);
-                        alert("Password reset link sent to your email");
-                    } catch (error) {
-                        alert("Error sending reset link: " + error.message);
-                    }
-                }
-            });
-
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            });
-        });
-    </script>
+    <script src="login.js"></script>
 </body>
 </html>
