@@ -204,8 +204,8 @@
             
             <form id="loginForm">
                 <div class="input-group">
-                    <label for="loginInput">Email</label>
-                    <input type="text" id="loginInput" placeholder="Enter your email" autocomplete="email" autofocus>
+                    <label for="loginInput">Username or Email</label>
+                    <input type="text" id="loginInput" placeholder="Enter your username or email" autocomplete="username" autofocus>
                 </div>
                 
                 <div class="input-group">
@@ -229,7 +229,14 @@
     <script src="https://unpkg.com/pocketbase@0.15.3/dist/pocketbase.umd.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const pb = new PocketBase('http://127.0.0.1:8090');
+            const pb = new PocketBase('http://127.0.0.1:8090', {
+                cookieStore: {
+                    path: '/',
+                    secure: false, // HTTPS kullanmıyorsanız false yapın
+                    sameSite: 'Lax'
+                }
+            });
+
             const loginForm = document.getElementById('loginForm');
             const loginInput = document.getElementById('loginInput');
             const passwordInput = document.getElementById('password');
@@ -239,6 +246,10 @@
             const forgotLink = document.getElementById('forgotLink');
             const canvas = document.getElementById('chainCanvas');
             const ctx = canvas.getContext('2d');
+
+            // Set canvas size
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
 
             // Background animation
             const elements = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne'];
@@ -299,7 +310,7 @@
 
                 // Validation
                 if (!identity || !password) {
-                    showError("Email and password are required!");
+                    showError("Username/Email and password are required!");
                     return;
                 }
 
@@ -308,42 +319,45 @@
                 loginBtn.innerHTML = 'Logging in <span class="loading"></span>';
 
                 try {
-                    // Authenticate with PocketBase (username or email)
                     let authData;
+                    
+                    // Email/Username detection
                     if (identity.includes('@')) {
                         // Email login
                         authData = await pb.collection('users').authWithPassword(identity, password);
                     } else {
                         // Username login
-                        const users = await pb.collection('users').getFullList({
-                            filter: `username = "${identity}"`
-                        });
-                        if (users.length === 0) {
-                            throw new Error("User not found");
-                        }
-                        authData = await pb.collection('users').authWithPassword(users[0].email, password);
+                        const user = await pb.collection('users').getFirstListItem(`username="${identity}"`);
+                        authData = await pb.collection('users').authWithPassword(user.email, password);
                     }
                     
-                    // Store auth data
+                    // Save auth data
                     localStorage.setItem('pocketbase_auth', JSON.stringify({
                         token: pb.authStore.token,
                         model: pb.authStore.model
                     }));
 
-                    // Success
+                    // Set cookie manually
+                    document.cookie = `pb_auth=${JSON.stringify(pb.authStore.export())}; path=/; Secure; SameSite=Lax`;
+
+                    // Success message
                     showSuccess("Login successful! Redirecting...");
+                    
+                    // Redirect after delay
                     setTimeout(() => {
                         window.location.href = "index.html";
-                    }, 1500);
+                    }, 1000);
 
                 } catch (error) {
                     console.error('Login error:', error);
                     
                     let errorMessage = "Login failed. Please try again.";
-                    if (error.status === 400 || error.message.includes("not found")) {
+                    if (error.status === 400) {
                         errorMessage = "Invalid username/email or password";
                     } else if (error.status === 0) {
                         errorMessage = "Cannot connect to server";
+                    } else if (error.message.includes("not found")) {
+                        errorMessage = "User not found";
                     }
                     
                     showError(errorMessage);
@@ -372,7 +386,7 @@
                 if (email) {
                     try {
                         await pb.collection('users').requestPasswordReset(email);
-                        alert("Password reset link sent to your email");
+                        alert("Password reset link sent to your email!");
                     } catch (error) {
                         alert("Error sending reset link: " + error.message);
                     }
