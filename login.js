@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Validasyon
         if (!usernameOrEmail || !password) {
-            showError("Username/Email and password are required!");
+            showError("Email and password are required!");
             return;
         }
 
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Detaylı hata mesajı
             let errorMessage = "Login failed. Please try again.";
             if (error.status === 400) {
-                errorMessage = "Invalid username/email or password";
+                errorMessage = "Invalid email or password";
             } else if (error.status === 0) {
                 errorMessage = "Cannot connect to server";
             }
