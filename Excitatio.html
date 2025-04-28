@@ -411,9 +411,9 @@ small {
 </head>
 <body>
 <!-- Audio Elements -->
-<audio id="ok" src="excitatioo.mp3" preload="auto"></audio>
+<audio id="ok" src="excitatio.mp3" preload="auto"></audio>
 <audio id="errS" src="assets/error.mp3" preload="auto"></audio>
-<audio id="amb" src="assets/ambience.mp3" loop></audio>
+<audio id="amb" src="excitatioo.mp3" loop></audio>
 
 <!-- Loading Bar -->
 <div class="progress-container" id="progressContainer">
@@ -569,12 +569,12 @@ for (const [number, symbol] of Object.entries(elements)) {
 }
 
 const alphabets = {
-  "latin": ['q','w','e','r','t','y','u','i','o','p'],
-  "kiril": ['я','в','е','р','т','н','г','ш','щ','з'],
-  "arap": ['ا','ب','ت','ث','ج','ح','خ','د','ذ','ر'],
-  "emoji": ['😺','😎','😂','😬','😏','😢','🥶','🤯','😇','🤖'],
-  "çince": ['一','二','三','四','五','六','七','八','九','〇'],
-  "yunanca": ['α','β','γ','δ','ε','ζ','η','θ','ι','κ']
+  "Latin": ['q','w','e','r','t','y','u','i','o','p'],
+  "Cyrillic": ['я','в','е','р','т','н','г','ш','щ','з'],
+  "Arabic": ['ا','ب','ت','ث','ج','ح','خ','د','ذ','ر'],
+  "Emoji": ['😺','😎','😂','😬','😏','😢','🥶','🤯','😇','🤖'],
+  "Chinese": ['一','二','三','四','五','六','七','八','九','〇'],
+  "Greek": ['α','β','γ','δ','ε','ζ','η','θ','ι','κ']
 };
 
 let currentEncryptAlphabet = 'latin';
