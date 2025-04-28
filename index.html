@@ -14,6 +14,7 @@
       --panel: rgba(21, 21, 21, 0.7);
       --r: 12px;
       --shadow: 0 6px 18px rgba(0,0,0,.7);
+      --error: #ff3333;
       font-family: "Segoe UI", Tahoma, sans-serif;
     }
 
@@ -450,7 +451,7 @@
     }
 
     // Initialize
-    window.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       try {
         // Load auth from cookie
         pb.authStore.loadFromCookie(document.cookie);
