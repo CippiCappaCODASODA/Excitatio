@@ -375,28 +375,43 @@
     const memberCountElement = document.getElementById('memberCount');
 
     // Update member count from PocketBase
-    async function updateMemberCount() {
-      try {
-        const result = await pb.collection('users').getList(1, 1, {
-          filter: 'verified = true'
-        });
-        memberCountElement.textContent = result.totalItems;
-      } catch (error) {
-        console.error('Error updating member count:', error);
-        memberCountElement.textContent = '0';
-      }
+    async function updateAuthUI() {
+    if (pb.authStore.isValid) {
+      const user = pb.authStore.model;
+
+      authArea.innerHTML = `
+        <div class="user-profile">
+          <div class="user-avatar">${user.username[0].toUpperCase()}</div>
+          <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+      `;
+      authMessage.innerText = `Welcome back, ${user.username}! Enjoy secure communication.`;
+    } else {
+      authArea.innerHTML = `
+        <button class="auth-btn login-btn" onclick="window.location.href='login.html'">Login</button>
+        <button class="auth-btn register-btn" onclick="window.location.href='register.html'">Register</button>
+      `;
+      authMessage.innerText = `Discover a revolutionary encryption system that transforms your messages using cipher technology.`;
     }
+  }
 
-    // Render authentication UI
-    async function renderAuth() {
-      authArea.innerHTML = '';
+  async function updateMemberCount() {
+    try {
+      const result = await pb.collection('users').getFullList();
+      memberCountElement.innerText = result.length;
+    } catch (error) {
+      console.error('Failed to fetch member count:', error);
+    }
+  }
 
-      if (pb.authStore.isValid) {
-        // User is logged in
-        const user = pb.authStore.model;
-        
-        const profileContainer = document.createElement('div');
-        profileContainer.className = 'user-profile';
+  async function logout() {
+    pb.authStore.clear();
+    window.location.reload();
+  }
+
+  // İlk yüklenince çalıştır
+  updateAuthUI();
+  updateMemberCount();
 
         // Avatar
         const avatar = document.createElement('div');
