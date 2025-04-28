@@ -1,20 +1,17 @@
-// register.js - Fixed Version
 document.addEventListener('DOMContentLoaded', function() {
+    const pb = new PocketBase('http://127.0.0.1:8090'); // PocketBase bağlantısı
     const registerForm = document.getElementById('registerForm');
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const errorElement = document.getElementById('error');
 
-    // Debug: Check existing localStorage
-    console.log("Current localStorage:", localStorage);
-    
-    registerForm.addEventListener('submit', function(e) {
-        e.preventDefault(); // Prevent form submission reload
+    registerForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
         
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
         
-        // Input validation
+        // Validation
         if (!username || !password) {
             showError("Username and password are required!");
             return;
@@ -26,31 +23,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            // Get existing users or create new object
-            const users = JSON.parse(localStorage.getItem('users')) || {};
-            
-            // Check if username exists
-            if (users[username]) {
-                showError("Username already exists!");
-                return;
-            }
-            
-            // Add new user (FIXED THIS LINE - removed extra parenthesis)
-            localStorage.setItem('users', JSON.stringify({...users, [username]: password}));
-            
-            // Debug output
-            console.log("Registration successful! Updated users:", 
-                JSON.parse(localStorage.getItem('users')));
-            
-            // Show success and redirect
+            // PocketBase'e kayıt yap
+            await pb.collection('users').create({
+                username: username,
+                email: `${username}@excitatio.fake`,  // Fake email (PocketBase requires email)
+                password: password,
+                passwordConfirm: password
+            });
+
+            // Başarılı kayıt
             showSuccess("Registration successful! Redirecting to login...");
             setTimeout(() => {
                 window.location.href = "login.html";
             }, 1500);
             
         } catch (error) {
-            console.error("LocalStorage error:", error);
-            showError("Registration failed. Please check console for details.");
+            console.error("PocketBase error:", error);
+            showError(error.message || "Registration failed.");
         }
     });
 
@@ -69,11 +58,4 @@ document.addEventListener('DOMContentLoaded', function() {
             errorElement.style.display = "block";
         }
     }
-
-    // Debug function to check storage
-    window.debugStorage = function() {
-        const users = JSON.parse(localStorage.getItem('users') || '{}');
-        console.log("Current users:", users);
-        return users;
-    };
 });
