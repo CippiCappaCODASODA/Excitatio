@@ -334,7 +334,11 @@
                     );
 
                     // Store auth data in localStorage
-                    localStorage.setItem('pocketbase_auth', JSON.stringify(pb.authStore.export()));
+                   localStorage.setItem('pocketbase_auth', JSON.stringify({
+    token: pb.authStore.token,
+    record: pb.authStore.model
+}));
+
 
                     // Successful login
                     showSuccess("Login successful! Redirecting...");
